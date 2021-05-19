@@ -16,7 +16,7 @@ def csv_downloader(data, filename):
 st.header("Upload Playwaze Teams Report")
 
 playwaze_teams_expected_filename = "Playwaze teams.xlsx"
-playwaze_teams_uploaded_file = st.file_uploader(f"Upload {playwaze_teams_expected_filename}",type=['xlsx'])
+playwaze_teams_uploaded_file = st.file_uploader(f"Upload '{playwaze_teams_expected_filename}'",type=['xlsx'])
 if playwaze_teams_uploaded_file is not None:
     file_details = {"FileName":playwaze_teams_uploaded_file.name,"FileType":playwaze_teams_uploaded_file.type,"FileSize":playwaze_teams_uploaded_file.size}
     if file_details["FileName"] != playwaze_teams_expected_filename:
@@ -28,7 +28,7 @@ else:
 st.header("Upload Playwaze Team Members Report")
 
 playwaze_members_expected_filename = "Playwaze team members.xlsx"
-playwaze_members_uploaded_file = st.file_uploader("Upload Playwaze Members File",type=['xlsx'])
+playwaze_members_uploaded_file = st.file_uploader(f"Upload '{playwaze_members_expected_filename}'",type=['xlsx'])
 if playwaze_members_uploaded_file is not None:
     file_details = {"FileName":playwaze_members_uploaded_file.name,"FileType":playwaze_members_uploaded_file.type,"FileSize":playwaze_members_uploaded_file.size}
     if file_details["FileName"] != playwaze_members_expected_filename:
@@ -78,11 +78,9 @@ df_coxes["Position"] = "C"
 df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
 df_playwaze_rowers = df_playwaze_rowers.sort_values(by=["Event", "Crew Name", "Position"])
 
-
 num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, "MembershipNumber"].count()
 df_entries = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_crew_name) == False].sort_values(by=[col_event, col_crew_name])
 num_entries = df_entries["Entry Id"].count()
-
 
 #extract number of seats
 re_boat = r"([1248])[x\-\+][\+]?$"
