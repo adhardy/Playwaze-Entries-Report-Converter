@@ -118,6 +118,11 @@ df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew
 st.write(df)
 csv_downloader(df, "rowers.csv")
 
+st.header("Individuals Per Club")
+df = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, ["Club", "MembershipNumber"]].groupby("Club").count()
+st.write(df)
+csv_downloader(df, "rowers_per_club.csv")
+
 st.header("Events")
 df = df_events
 st.write(df)
