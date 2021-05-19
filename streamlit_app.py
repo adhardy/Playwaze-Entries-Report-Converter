@@ -105,10 +105,19 @@ rowers_display_columns = ["Event", "Crew Name", "Position", "Name"]
 
 #================= Web Page ================================
 
+
+
+
 st.header("Entries")
 st.write(f"Number of Entries: {num_entries}")
+
+show_unverified = st.checkbox('Show Un-verified crews only')
+if show_unverified:
+    df = df_entries.loc[df_entries[col_verified] == "N", team_display_columns]
+else:
+    df = df_entries[team_display_columns]
+
 st.write(f"Number of Seats: {num_seats}")
-df = df_entries[team_display_columns]
 st.write(df)
 csv_downloader(df, "entries.csv")
 
