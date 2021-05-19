@@ -73,12 +73,16 @@ for i, rower in df_playwaze_rowers.iterrows():
     position += 1
     last_team = team
 
+#extract coxes from teams report
 df_coxes = df_playwaze_teams.loc[df_playwaze_teams["Is entry cox (if required)"] == "Y", ["Name", col_crew_name, col_event]]
 df_coxes["Position"] = "C"
+#add to rowers dataframe
 df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
 df_playwaze_rowers = df_playwaze_rowers.sort_values(by=["Event", "Crew Name", "Position"])
-
+#count number of unique athletes
 num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, "MembershipNumber"].count()
+
+#get rid of duplicate crew names
 df_entries = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_crew_name) == False].sort_values(by=[col_event, col_crew_name])
 num_entries = df_entries["Entry Id"].count()
 
@@ -89,17 +93,15 @@ df_entries["Seats"] = df_entries[col_event].str.extract(re_boat).astype(int)
 df_entries["Coxed"] = df_entries[col_event].str.contains(r"\+$").astype(int)
 df_entries["Crew Members"] = df_entries["Seats"]
 
+#count steats
 num_seats = df_entries["Seats"].sum()
 
-#get eevents & entries
+#get events & entries
 df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("Entries")
 
+#set columns to display
 team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Crew Members"]
 rowers_display_columns = ["Event", "Crew Name", "Position", "Name"]
-
-# df_events = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_event) == False, col_event]
-
-
 
 #================= Web Page ================================
 
