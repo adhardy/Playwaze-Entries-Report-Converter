@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 import base64 
-import time
-timestr = time.strftime("%Y%m%d-%H%M%S")
+
+st.title("Scottish Rowing Playwaze Entry System Report Converter")
 
 # create csv downloader
 def csv_downloader(data, filename):
@@ -13,10 +13,10 @@ def csv_downloader(data, filename):
 
 #================================ File Upload ================================
 
-st.header("Upload Playwaze Reports")
+st.header("Upload Playwaze Teams Report")
 
 playwaze_teams_expected_filename = "Playwaze teams.xlsx"
-playwaze_teams_uploaded_file = st.file_uploader("Upload Playwaze Teams File",type=['xlsx'])
+playwaze_teams_uploaded_file = st.file_uploader(f"Upload {playwaze_teams_expected_filename}",type=['xlsx'])
 if playwaze_teams_uploaded_file is not None:
     file_details = {"FileName":playwaze_teams_uploaded_file.name,"FileType":playwaze_teams_uploaded_file.type,"FileSize":playwaze_teams_uploaded_file.size}
     if file_details["FileName"] != playwaze_teams_expected_filename:
@@ -24,6 +24,8 @@ if playwaze_teams_uploaded_file is not None:
         st.stop()
 else:
     st.stop()
+
+st.header("Upload Playwaze Team Members Report")
 
 playwaze_members_expected_filename = "Playwaze team members.xlsx"
 playwaze_members_uploaded_file = st.file_uploader("Upload Playwaze Members File",type=['xlsx'])
@@ -77,7 +79,10 @@ df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
 df_playwaze_rowers = df_playwaze_rowers.sort_values(by=["Event", "Crew Name", "Position"])
 
 
+num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, "MembershipNumber"].count()
 df_entries = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_crew_name) == False].sort_values(by=[col_event, col_crew_name])
+num_entries = df_entries["Entry Id"].count()
+
 
 #extract number of seats
 re_boat = r"([1248])[x\-\+][\+]?$"
@@ -85,6 +90,8 @@ df_entries["Seats"] = df_entries[col_event].str.extract(re_boat).astype(int)
 #extract coxed boats
 df_entries["Coxed"] = df_entries[col_event].str.contains(r"\+$").astype(int)
 df_entries["Crew Members"] = df_entries["Seats"]
+
+num_seats = df_entries["Seats"].sum()
 
 #get eevents & entries
 df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("Entries")
@@ -99,11 +106,14 @@ rowers_display_columns = ["Event", "Crew Name", "Position", "Name"]
 #================= Web Page ================================
 
 st.header("Entries")
+st.write(f"Number of Entries: {num_entries}")
+st.write(f"Number of Seats: {num_seats}")
 df = df_entries[team_display_columns]
 st.write(df)
 csv_downloader(df, "entries.csv")
 
 st.header("Rowers")
+st.write(f"Number of Rowers (unique): {num_rowers}")
 df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name], columns="Position", values="Name")
 st.write(df)
 csv_downloader(df, "rowers.csv")
