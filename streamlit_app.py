@@ -4,7 +4,7 @@ import streamlit as st
 import base64 
 
 st.set_page_config(layout="wide") #set to wide mode
-
+st.image("images/2.1.png", width=300)
 st.title("Scottish Rowing Playwaze Entry System Report Converter")
 
 # create csv downloader
