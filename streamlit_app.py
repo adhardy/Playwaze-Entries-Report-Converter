@@ -1,5 +1,7 @@
+from logging import StringTemplateStyle
 import pandas as pd
 import numpy as np
+from pandas.core.arrays.categorical import Categorical
 import streamlit as st
 import base64 
 
@@ -16,7 +18,7 @@ def csv_downloader(data, filename):
 
 view_entries = st.sidebar.selectbox(
     "Select View:",
-    ("Entries", "Rowers", "Events", "Clubs")
+    ("Entries", "Crews", "Events", "Clubs")
 )
 
 #================================ File Upload ================================
@@ -93,11 +95,12 @@ for i, rower in df_playwaze_rowers.iterrows():
     last_team = team
 
 #extract coxes from teams report
-df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == "Y", ["Name", col_crew_name, col_event]]
+df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Name", col_crew_name, col_event]]
 df_coxes["Position"] = "C"
 #add to rowers dataframe
 df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
 df_playwaze_rowers = df_playwaze_rowers.sort_values(by=["Event", "Crew Name", "Position"])
+
 #count number of unique athletes
 num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, "MembershipNumber"].count()
 
@@ -137,7 +140,8 @@ df_entries["Club"] = df_entries[col_crew_name].str.extract(re_club)
 if view_entries == "Entries":
     st.header("Entries")
     st.write(f"Number of Entries: {num_entries}")
-
+    st.write(f"Number of Seats: {num_seats}")
+    st.write(f"Number of Rowers (unique): {num_rowers}")
     entries_filter = st.selectbox(
     "Filter:",
     ("None", "Unverified Crews", "Missing Coxes")
@@ -150,13 +154,12 @@ if view_entries == "Entries":
     else:
         df = df_entries[team_display_columns]
 
-    st.write(f"Number of Seats: {num_seats}")
+    
     st.write(df)
     csv_downloader(df, "entries.csv")
 
-elif view_entries == "Rowers":
-    st.header("Rowers")
-    st.write(f"Number of Rowers (unique): {num_rowers}")
+elif view_entries == "Crews":
+    st.header("Crews")
     df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name], columns="Position", values="Name")
     st.write(df)
     csv_downloader(df, "rowers.csv")
@@ -170,17 +173,36 @@ elif view_entries == "Events":
 elif view_entries == "Clubs":
 
     st.header("Clubs")
-    
+
     #entries per club
     df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
 
+    clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
+
     #individual rowers per club
-    df_rowers_by_club_count = (df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, ["Club", "MembershipNumber"]]).groupby("Club").count().squeeze().rename("Rowers") #squeeze: force convert to series
+
+    #put all composite and end of list so that individual rowers will appear next to their actual club (if they are in a crew from their club)
+    club_sorter = sorted(clubs_list)
+    for club in club_sorter:
+        if "(composite)" in club:
+            club_sorter.remove(club)
+            club_sorter.append(club)
+
+    #convert club to categorical variable for easy sorting
+    df_playwaze_rowers["Club"] = df_playwaze_rowers["Club"].astype("category")
+    df_playwaze_rowers["Club"].cat.set_categories(club_sorter, inplace=True)
+
+    #sort by puts composite crews 
+    df_rowers_by_club_count = (df_playwaze_rowers.loc[df_playwaze_rowers.sort_values(by="Club").duplicated(subset="MembershipNumber")==False, ["Club", "MembershipNumber"]]).groupby("Club").count().squeeze().rename("Rowers") #squeeze: force convert to series
+
+    #convert back to text as Streamlit can't handle categorical columns
+    df_playwaze_rowers["Club"] = df_playwaze_rowers["Club"].astype(str)
 
     #seats per club
     df_seats_by_club_count = (df_entries.groupby(by="Club").sum())["Seats"].rename("Seats")
 
-    df = pd.merge(df_entries_by_club_count, df_rowers_by_club_count, left_index=True, right_index=True)
-    df = pd.merge(df, df_seats_by_club_count, left_index=True, right_index=True)
+    df = pd.merge(df_entries_by_club_count, df_rowers_by_club_count, left_index=True, right_index=True, how="left")
+    df = pd.merge(df, df_seats_by_club_count, left_index=True, right_index=True, how="left")
     st.write(df)
+    st.write("'Rowers' lists only unique individuals. Where a rower is representing more than one club, or rows in a composite, they will only be shown in the count for one of their clubs (usually the first alphabetically.)")
     csv_downloader(df, "clubs.csv")
