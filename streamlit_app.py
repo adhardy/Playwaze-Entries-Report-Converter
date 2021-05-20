@@ -16,14 +16,15 @@ def csv_downloader(data, filename):
 
 #================================ Sidebar ================================
 
+st.sidebar.header("Select View:")
 view_entries = st.sidebar.selectbox(
-    "Select View:",
+    "",
     ("Entries", "Crews", "Events", "Clubs")
 )
 
 #================================ File Upload ================================
 
-st.sidebar.header("Upload Playwaze Teams Report")
+st.sidebar.header("Upload Playwaze Teams Report:")
 
 playwaze_teams_file_check = False
 playwaze_teams_expected_filename = "Playwaze teams.xlsx"
@@ -40,7 +41,7 @@ else:
     st.warning("← Please Upload A Playwaze Teams Report to Continue")
     st.stop()
 
-st.sidebar.header("Upload Playwaze Team Members Report")
+st.sidebar.header("Upload Playwaze Team Members Report:")
 
 playwaze_members_file_check = False
 playwaze_members_expected_filename = "Playwaze team members.xlsx"
