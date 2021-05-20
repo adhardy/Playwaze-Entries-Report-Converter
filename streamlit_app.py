@@ -123,8 +123,13 @@ num_seats = df_entries["Seats"].sum()
 df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("Entries")
 
 #set columns to display
-team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Missing Rowers", col_has_cox, "Missing Cox"]
+team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Missing Rowers", col_has_cox, "Missing Cox", "Club"]
 rowers_display_columns = ["Event", "Crew Name", "Position", "Name"]
+
+
+#Workaround Playwaze teams report not having Club Name
+re_club = "^(.*)\s[OW]\sJ1[4568]\s[1248][x\-\+][\+]?\s[A-Z]$"
+df_entries["Club"] = df_entries[col_crew_name].str.extract(re_club)
 
 #================= Main Page ================================
 
@@ -163,8 +168,19 @@ elif view_entries == "Events":
     csv_downloader(df, "events.csv")
 
 elif view_entries == "Clubs":
-    st.header("Individuals Per Club")
-    df = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, ["Club", "MembershipNumber"]].groupby("Club").count()
-    st.write(df)
-    csv_downloader(df, "rowers_per_club.csv")
 
+    st.header("Clubs")
+    
+    #entries per club
+    df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
+
+    #individual rowers per club
+    df_rowers_by_club_count = (df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="MembershipNumber")==False, ["Club", "MembershipNumber"]]).groupby("Club").count().squeeze().rename("Rowers") #squeeze: force convert to series
+
+    #seats per club
+    df_seats_by_club_count = (df_entries.groupby(by="Club").sum())["Seats"].rename("Seats")
+
+    df = pd.merge(df_entries_by_club_count, df_rowers_by_club_count, left_index=True, right_index=True)
+    df = pd.merge(df, df_seats_by_club_count, left_index=True, right_index=True)
+    st.write(df)
+    csv_downloader(df, "clubs.csv")
