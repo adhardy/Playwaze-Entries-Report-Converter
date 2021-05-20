@@ -25,7 +25,6 @@ view_entries = st.sidebar.selectbox(
 
 st.sidebar.header("Upload Playwaze Teams Report")
 
-
 playwaze_teams_file_check = False
 playwaze_teams_expected_filename = "Playwaze teams.xlsx"
 playwaze_teams_uploaded_file = st.sidebar.file_uploader(f"Upload '{playwaze_teams_expected_filename}'",type=['xlsx'])
@@ -40,6 +39,8 @@ if playwaze_teams_uploaded_file is not None:
 else:
     st.warning("← Please Upload A Playwaze Teams Report to Continue")
     st.stop()
+
+st.sidebar.header("Upload Playwaze Team Members Report")
 
 playwaze_members_file_check = False
 playwaze_members_expected_filename = "Playwaze team members.xlsx"
