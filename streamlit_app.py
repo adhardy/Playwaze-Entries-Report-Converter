@@ -133,9 +133,15 @@ if view_entries == "Entries":
     st.header("Entries")
     st.write(f"Number of Entries: {num_entries}")
 
-    show_unverified = st.checkbox('Show Un-verified crews only')
-    if show_unverified:
+    entries_filter = st.selectbox(
+    "Filter:",
+    ("None", "Unverified Crews", "Missing Coxes")
+)
+
+    if entries_filter == "Unverified Crews":
         df = df_entries.loc[df_entries[col_verified] == "N", team_display_columns]
+    elif entries_filter == "Missing Coxes":
+        df = df_entries.loc[df_entries["Missing Cox"] == 1,team_display_columns]
     else:
         df = df_entries[team_display_columns]
 
