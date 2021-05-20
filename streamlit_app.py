@@ -1,9 +1,9 @@
-from logging import StringTemplateStyle
 import pandas as pd
 import numpy as np
-from pandas.core.arrays.categorical import Categorical
 import streamlit as st
 import base64 
+
+st.set_page_config(layout="wide") #set to wide mode
 
 st.title("Scottish Rowing Playwaze Entry System Report Converter")
 
@@ -38,7 +38,7 @@ if playwaze_teams_uploaded_file is not None:
     else:
         playwaze_teams_file_check = True
 else:
-    st.header("<- Please Upload A Playwaze Teams Report to Continue")
+    st.header("← Please Upload A Playwaze Teams Report to Continue")
     st.stop()
 
 playwaze_members_file_check = False
@@ -52,7 +52,7 @@ if playwaze_members_uploaded_file is not None:
     else:
         playwaze_members_file_check = True
 else:
-    st.header("<- Please Upload A Playwaze Members Report to Continue")
+    st.header("← Please Upload A Playwaze Members Report to Continue")
     st.stop()
 
 #================================ Pre Processing ================================
