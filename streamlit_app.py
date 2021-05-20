@@ -38,7 +38,7 @@ if playwaze_teams_uploaded_file is not None:
     else:
         playwaze_teams_file_check = True
 else:
-    st.header("← Please Upload A Playwaze Teams Report to Continue")
+    st.warning("← Please Upload A Playwaze Teams Report to Continue")
     st.stop()
 
 playwaze_members_file_check = False
@@ -52,7 +52,7 @@ if playwaze_members_uploaded_file is not None:
     else:
         playwaze_members_file_check = True
 else:
-    st.header("← Please Upload A Playwaze Members Report to Continue")
+    st.warning("← Please Upload A Playwaze Members Report to Continue")
     st.stop()
 
 #================================ Pre Processing ================================
