@@ -129,13 +129,16 @@ df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("En
 
 #set columns to display
 team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Missing Rowers", col_has_cox, "Missing Cox", "Club"]
-rowers_display_columns = ["Event", "Crew Name", "Position", "Name"]
+rowers_display_columns = ["Event", "Crew Name", "Club", "Position", "Name"]
 
 
 #Workaround Playwaze teams report not having Club Name
 re_club = "^(.*)\s[OW]\sJ1[4568]\s[1248][x\-\+][\+]?\s[A-Z]$"
 df_entries["Club"] = df_entries[col_crew_name].str.extract(re_club)
 
+
+df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
+clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
 #================= Main Page ================================
 
 
@@ -161,8 +164,12 @@ if view_entries == "Entries":
     csv_downloader(df, "entries.csv")
 
 elif view_entries == "Crews":
+    
     st.header("Crews")
-    df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name], columns="Position", values="Name")
+    club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+    df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values="Name").reset_index()
+    if club_filter != "All":
+        df = df[df["Club"] == club_filter]
     st.write(df)
     csv_downloader(df, "rowers.csv")
 
@@ -175,13 +182,6 @@ elif view_entries == "Events":
 elif view_entries == "Clubs":
 
     st.header("Clubs")
-
-    #entries per club
-    df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
-
-    clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
-
-    #individual rowers per club
 
     #put all composite and end of list so that individual rowers will appear next to their actual club (if they are in a crew from their club)
     club_sorter = sorted(clubs_list)
