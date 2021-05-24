@@ -20,7 +20,7 @@ def csv_downloader(data, filename):
 st.sidebar.header("Select View:")
 view_entries = st.sidebar.selectbox(
     "",
-    ("Entries", "Crews", "Events", "Clubs")
+    ("Entries", "Crews", "Events", "Clubs", "Rowers")
 )
 
 #================================ File Upload ================================
@@ -88,25 +88,23 @@ df_playwaze_rowers = df_playwaze_rowers.rename(columns={
     "Team type": col_event
     })
 
-#iterate over rowers in df, assign position to each one
-last_team = ""
-df_playwaze_rowers["Position"] = int(0)
-for i, rower in df_playwaze_rowers.iterrows():
-    idx = rower.name
-    team = rower[col_crew_name]
-    name = rower["Name"]
-    if team != last_team:
-        position = 1
-    df_playwaze_rowers.loc[idx, "Position"] = position
-    position += 1
-    last_team = team
+#assign position to rowers
+df_playwaze_rowers["Position"] = df_playwaze_rowers.groupby('Crew Name').cumcount()
+df_playwaze_rowers["Position"] = df_playwaze_rowers["Position"] + 1
+
 
 #extract coxes from teams report
 df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Name", col_crew_name, col_event, "Club"]]
 df_coxes["Position"] = "C"
+
+#add membership number to cox if they already exist in the members data
+# create a de-duplicated df of individuals and membership numbers
+df_members = df_playwaze_rowers[df_playwaze_rowers.duplicated(subset=["Name", "MembershipNumber"]) == False]
+
+df_coxes = pd.merge(df_coxes, df_members[["Name", "MembershipNumber"]], left_on=["Name"], right_on=["Name"], how="left")
 #add to rowers dataframe
 df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
-# df_playwaze_rowers = df_playwaze_rowers.sort_values(by=["Event", "Crew Name", "Position"])
+
 
 #count number of unique athletes
 # de-duplicate on name because coxes don't have a member ID 
@@ -139,10 +137,6 @@ df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("En
 team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Missing Rowers", col_has_cox, "Missing Cox", "Club"]
 rowers_display_columns = ["Event", "Crew Name", "Club", "Position", "Name"]
 
-
-
-
-
 df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
 clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
 #================= Main Page ================================
@@ -173,6 +167,7 @@ elif view_entries == "Crews":
     
     st.header("Crews")
     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+    df_playwaze_rowers = df_playwaze_rowers.sort_values(by=[col_event, col_crew_name, "Club"])
     df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values="Name").reset_index()
     
     # add in crews that don't have any rowers
@@ -198,7 +193,7 @@ elif view_entries == "Crews":
     if club_filter != "All":
         df = df[df["Club"] == club_filter]
     st.write(df)
-    csv_downloader(df, "rowers.csv")
+    csv_downloader(df, "crews.csv")
 
 elif view_entries == "Events":
     st.header("Events")
@@ -235,3 +230,11 @@ elif view_entries == "Clubs":
     st.write(df)
     st.write("'Rowers' lists only unique individuals. Where a rower is representing more than one club, or rows in a composite, they will only be shown in the count for one of their clubs (usually the first alphabetically.)")
     csv_downloader(df, "clubs.csv")
+
+elif view_entries == "Rowers":
+    st.header("Rowers")
+    df = df_playwaze_rowers[["MembershipNumber", "Name", "Crew Name", "Club"]]
+    df['idx'] = df.groupby('Name').cumcount()
+    df = df.pivot(index=["MembershipNumber", "Name", "Club"], values="Crew Name", columns="idx")
+    st.write(df.sort_values(by="Name"))
+    csv_downloader(df, "rowers.csv")
