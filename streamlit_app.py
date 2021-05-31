@@ -231,10 +231,33 @@ elif view_entries == "Clubs":
     st.write("'Rowers' lists only unique individuals. Where a rower is representing more than one club, or rows in a composite, they will only be shown in the count for one of their clubs (usually the first alphabetically.)")
     csv_downloader(df, "clubs.csv")
 
+    #list of rowers per club
+
+    club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+
+    df = df_playwaze_rowers[["MembershipNumber", "Name", "Crew Name", "Club"]]
+
+    if club_filter != "All":
+        df = df[df["Club"] == club_filter]
+
+    st.write(df)
+    st.write("'Rowers' lists only unique individuals. Where a rower is representing more than one club, or rows in a composite, they will only be shown in the count for one of their clubs (usually the first alphabetically.)")
+    csv_downloader(df, "clubs.csv")
+
+
 elif view_entries == "Rowers":
     st.header("Rowers")
     df = df_playwaze_rowers[["MembershipNumber", "Name", "Crew Name", "Club"]]
     df['idx'] = df.groupby('Name').cumcount()
-    df = df.pivot(index=["MembershipNumber", "Name", "Club"], values="Crew Name", columns="idx")
-    st.write(df.sort_values(by="Name"))
+    df = df.pivot(index=["MembershipNumber", "Name", "Club"], values="Crew Name", columns="idx").reset_index()
+
+    club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+
+    sort_by = st.selectbox("Sort by:", ["Name", "Club", "Membership Number"])
+    if club_filter != "All":
+        df = df[df["Club"] == club_filter]
+
+    df = df.sort_values(by=sort_by)
+
+    st.write(df)
     csv_downloader(df, "rowers.csv")
