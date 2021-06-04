@@ -170,7 +170,7 @@ elif view_entries == "Crews":
     st.write(df_playwaze_rowers)
      
     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
-    member_info = st.selectbox("Display:", ["Name", "MemberId"])
+    member_info = st.selectbox("Display:", ["Name", "MembershipNumber"])
 
     rowers_cols = ["Event", "Crew Name", "Club", "Position", member_info]
 	
