@@ -170,7 +170,7 @@ elif view_entries == "Crews":
     st.write(df_playwaze_rowers)
      
     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
-    member_info = st.selectbox("Display:", ["Name", "Member Id"])
+    member_info = st.selectbox("Display:", ["Name", "MemberId"])
 
     df_playwaze_rowers = df_playwaze_rowers.sort_values(by=[col_event, col_crew_name, "Club"])
     df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values=member_info).reset_index()
