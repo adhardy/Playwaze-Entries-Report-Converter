@@ -107,7 +107,7 @@ df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
 
 
 #count number of unique athletes
-# de-duplicate on name because coxes don't have a member ID 
+# de-duplicate on name because coxes don't have a 
 num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="Name")==False, "Name"].count()
 
 
@@ -167,7 +167,7 @@ elif view_entries == "Crews":
     
     st.header("Crews")
 	
-    	
+    st.write(df_playwaze_rowers)
      
     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
     member_info = st.selectbox("Display:", ["Name", "Member Id"])
