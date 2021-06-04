@@ -166,9 +166,14 @@ if view_entries == "Entries":
 elif view_entries == "Crews":
     
     st.header("Crews")
+	
+    	
+     
     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+    member_info = st.selectbox("Display:", ["Name", "MemberID"])
+
     df_playwaze_rowers = df_playwaze_rowers.sort_values(by=[col_event, col_crew_name, "Club"])
-    df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values="Name").reset_index()
+    df = df_playwaze_rowers[rowers_display_columns].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values=member_info).reset_index()
     
     # add in crews that don't have any rowers
     #get the crew lists from both tables
