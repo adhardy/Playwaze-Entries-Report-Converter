@@ -3,9 +3,7 @@ import numpy as np
 import streamlit as st
 import base64 
 
-st.set_page_config(layout="wide") #set to wide mode
-#st.image("images/2.1.png", width=300)
-st.title("Scottish Rowing Playwaze Entry System Report Converter")
+#================================ Function Definitions ================================
 
 # create csv downloader
 def csv_downloader(data, filename):
@@ -14,6 +12,24 @@ def csv_downloader(data, filename):
 	href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download as CSV</a>'
 	st.markdown(href,unsafe_allow_html=True)
 
+#================================ Configuration ================================
+
+st.set_page_config(layout="wide") #set to wide mode
+st.image("images/2.1.png", width=300)
+st.title("Playwaze Entry System Report Converter")
+
+# Create variable names for all the report columns - allows flexibility as columns names can be changed in playwaze. TODO: break this out into a config file
+col_event = "Event"
+col_crew_name = "Crew Name"
+col_crew_members = "Rowers"
+col_verified = "Verified"
+col_has_cox = "has cox"
+col_club = "Club"
+col_primary_club = "PrimaryClub"
+
+
+# variables for internal columns
+col_composite = "Composite"
 
 #================================ Sidebar ================================
 
@@ -60,13 +76,7 @@ else:
 
 #================================ Pre Processing ================================
 
-col_event = "Event"
-col_crew_name = "Crew Name"
-col_crew_members = "Rowers"
-col_verified = "Verified"
-col_has_cox = "has cox"
-
-# load teams
+# load teams report
 df_teams = pd.read_excel(playwaze_teams_uploaded_file)
 df_playwaze_teams = df_teams.rename(columns={
     "Entry type":col_event,
@@ -75,80 +85,93 @@ df_playwaze_teams = df_teams.rename(columns={
     "Is verified":col_verified,
     "Is entry cox (if required)":col_has_cox
     })
-df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":1, np.nan:0, "N":0})
+df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":True, np.nan:False, "N":False})
 
-# Workaround Playwaze teams report not having Club Name
-re_club = "^(.*)\s(O|W|M|Mixed)\s.*[1248][x\-\+][\+]?\s[A-Z]$" # find all text before the event name in the team name
-df_playwaze_teams["Club"] = df_playwaze_teams[col_crew_name].str.extract(re_club)
 
-# load rowers
+# load rowers report
 df_playwaze_rowers = pd.read_excel(playwaze_members_uploaded_file)
 df_playwaze_rowers = df_playwaze_rowers.rename(columns={
     "Team":col_crew_name,
     "Team type": col_event
     })
 
-# assign position to rowers
+# assign a position to rowers
 df_playwaze_rowers["Position"] = df_playwaze_rowers.groupby('Crew Name').cumcount()
 df_playwaze_rowers["Position"] = df_playwaze_rowers["Position"] + 1
-
 
 # extract coxes from teams report
 df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Name", col_crew_name, col_event, "Club"]]
 df_coxes["Position"] = "C"
 
 # add membership number to cox if they already exist in the members data
-# create a de-duplicated df of individuals and membership numbers
+# create a de-duplicated df of individuals and membership numbers. TODO: optional import of Azolve report to make sure we get everyone
 df_members = df_playwaze_rowers[df_playwaze_rowers.duplicated(subset=["Name", "MembershipNumber"]) == False]
 
+# lookup coxed in the members dataframe and assing memberhip number of they have one
 df_coxes = pd.merge(df_coxes, df_members[["Name", "MembershipNumber"]], left_on=["Name"], right_on=["Name"], how="left")
-#add to rowers dataframe
+#add these to the rowers dataframe
 df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
-
-
-#count number of unique athletes
-# de-duplicate on name because coxes don't have a 
+# count number of unique athletes
+# de-duplicate on name because some coxes won't have an ID, not ideal if people have the same name - TODO: add in more columns to de-dupe on - DOB would be good
 num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="Name")==False, "Name"].count()
 
-#get rid of duplicate crew names
+#================================ Composite Crews ================================
+# where a crew is a composite, remove the composite suffix from the club name, add a composite column
+df_playwaze_teams[col_composite] = False
+df_playwaze_teams[col_composite] = df_playwaze_teams[col_composite].mask(df_playwaze_teams[col_club].str.contains("(composite)"),True)
+df_playwaze_teams[col_club] = df_playwaze_teams[col_club].str.replace(" \(composite\)", "", regex=True)
+
+df_playwaze_rowers[col_composite] = False
+df_playwaze_rowers[col_composite] = df_playwaze_rowers[col_composite].mask(df_playwaze_rowers[col_club].str.contains("(composite)"),True)
+df_playwaze_rowers[col_club] = df_playwaze_rowers[col_club].str.replace(" \(composite\)", "", regex=True)
+
+#get rid of duplicate crew names: this can happen if a crew has a cox and captain assigned
 df_entries = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_crew_name) == False].sort_values(by=[col_event, col_crew_name, col_has_cox])
 num_entries = df_entries["Entry Id"].count()
 
-#extract number of seats
+# extract number of seats for each crew
 re_boat = r"([1248])[x\-\+][\+]?$"
 df_entries["Seats"] = df_entries[col_event].str.extract(re_boat).astype(int)
-#extract coxed boats
+
+# extract coxed boats
 df_entries["Coxed"] = df_entries[col_event].str.contains(r"\+$").astype(int)
-# df_entries["Crew Members"] = df_entries["Seats"] #add in coxes eventually
+
+# calculate number of rowers missing
 df_entries["Missing Rowers"] = df_entries["Seats"] - df_entries[col_crew_members]
 
-#find missing coxes
+# find missing coxes
 df_entries["Missing Cox"] = df_entries[col_has_cox] != df_entries["Coxed"]
 
-#count steats
+# count total steats (excl. coxes)
+# TODO: caculate this including and excluding coxes
 num_seats = df_entries["Seats"].sum()
 
-#get events & entries
+# get events & entries
 df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("Entries")
 
-#set columns to display
-team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Missing Rowers", col_has_cox, "Missing Cox", "Club"]
+
 rowers_display_columns = ["Event", "Crew Name", "Club", "Position", "Name"]
 
 df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
 clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
+
 #================= Main Page ================================
 
+#================= Entries ================================
 
 if view_entries == "Entries":
     st.header("Entries")
     st.write(f"Number of Entries: {num_entries}")
     st.write(f"Number of Seats: {num_seats}")
     st.write(f"Number of Rowers (unique): {num_rowers}")
+
     entries_filter = st.selectbox(
-    "Filter:",
-    ("None", "Unverified Crews", "Missing Coxes")
-)
+            "Filter:",
+            ("None", "Unverified Crews", "Missing Coxes")
+        )
+
+    # set columns to display
+    team_display_columns = [col_event, col_crew_name, "Seats", "Coxed", col_verified, col_crew_members, "Missing Rowers", col_has_cox, "Missing Cox", "Club"]
 
     if entries_filter == "Unverified Crews":
         df = df_entries.loc[df_entries[col_verified] == "N", team_display_columns]
@@ -157,46 +180,59 @@ if view_entries == "Entries":
     else:
         df = df_entries[team_display_columns]
 
-    
     st.write(df)
     csv_downloader(df, "entries.csv")
+
+#================= Crews ================================
 
 elif view_entries == "Crews":
     
     st.header("Crews")
-     
+    
     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
     member_info = st.selectbox("Display:", ["Name", "MembershipNumber"])
 
-    rowers_cols = ["Event", "Crew Name", "Club", "Position", member_info]
+    # set columns to display
+    rowers_display_cols = ["Event", "Crew Name", "Club", "Position", member_info]
 	
     df_playwaze_rowers = df_playwaze_rowers.sort_values(by=[col_event, col_crew_name, "Club"])
-    df = df_playwaze_rowers[rowers_cols].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values=member_info).reset_index()
+    
+    # pivot the dataframe so that each row is a crew, and crew members are listed by their position across the row
+    df = df_playwaze_rowers[rowers_display_cols].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values=member_info).reset_index()
     
     # add in crews that don't have any rowers
-    #get the crew lists from both tables
-    members_crews = df_playwaze_rowers[["Crew Name", "Event", "Club"]]
-    members_crews = members_crews[members_crews.duplicated(subset="Crew Name") == False]
+    # get the crew lists from both tables
+    df_members_crews = df_playwaze_rowers[["Crew Name", "Event", "Club"]]
+    df_members_crews = df_members_crews[df_members_crews.duplicated(subset="Crew Name") == False]
+
     # find crews in entries that aren't in members (ie.e crew that have noone entered in them)
-    # hacky - concat both lists so we can use np.setdiff1d and then split them again
-    # assign a combo of characters that is very unlikely to appear in an actual crew name
-    split_string = "|+_*&"
-    all_crews = df_entries[col_event] + split_string + df_entries[col_crew_name] + split_string + df_entries["Club"]
-    members_crews = members_crews["Event"] + split_string +  members_crews["Crew Name"] + split_string + members_crews["Club"]
-    missing_crews = np.setdiff1d(all_crews, members_crews)
-    missing_crews = [s.split(split_string) for s in missing_crews]
+    # hacky - concat both lists so we can use np.setdiff1d and then split them again, assign a combo of characters that is very unlikely to appear in an actual crew name
+    split_string = "|+_*&" 
+    df_all_crews = df_entries[col_event] + split_string + df_entries[col_crew_name] + split_string + df_entries["Club"]
+    df_members_crews = df_members_crews["Event"] + split_string +  df_members_crews["Crew Name"] + split_string + df_members_crews["Club"]
 
+    np_missing_crews = np.setdiff1d(df_all_crews, df_members_crews)
+    np_missing_crews = [s.split(split_string) for s in np_missing_crews]
+
+    # reconstruct a dataframe from the contatenated data
     df_missing_crews = pd.DataFrame()   
-    df_missing_crews["Event"] = [ x[0] for x in missing_crews ]
-    df_missing_crews["Crew Name"] = [ x[1] for x in missing_crews ]
-    df_missing_crews["Club"] = [ x[2] for x in missing_crews ]
+    df_missing_crews["Event"] = [ x[0] for x in np_missing_crews ]
+    df_missing_crews["Crew Name"] = [ x[1] for x in np_missing_crews ]
+    df_missing_crews["Club"] = [ x[2] for x in np_missing_crews ]
 
+    # add the missing crews to the crews dataframe
     df = df.append(df_missing_crews, ignore_index=True).sort_values(by=["Event", "Crew Name"]).reset_index(drop=True)
+
+    # replace nan
+    df = df.replace(np.nan, '', regex=True)
 
     if club_filter != "All":
         df = df[df["Club"] == club_filter]
+
     st.write(df)
     csv_downloader(df, "crews.csv")
+
+#================= Events ================================
 
 elif view_entries == "Events":
     st.header("Events")
@@ -204,11 +240,15 @@ elif view_entries == "Events":
     st.write(df)
     csv_downloader(df, "events.csv")
 
+#================= Clubs ================================
+
 elif view_entries == "Clubs":
 
     st.header("Clubs")
 
-    #put all composite and end of list so that individual rowers will appear next to their actual club (if they are in a crew from their club)
+    # where a rower in a composite crew - put them with their Primary Club
+    df_playwaze_rowers[col_club] = df_playwaze_rowers[col_club].where(df_playwaze_rowers[col_composite]==False, df_playwaze_rowers[col_primary_club])
+    # put all composite and end of list so that individual rowers will appear next to their actual club (if they are in a crew from their club)
     club_sorter = sorted(clubs_list)
     for club in club_sorter:
         if "(composite)" in club:
