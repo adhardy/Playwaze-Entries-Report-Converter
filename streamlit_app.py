@@ -26,10 +26,12 @@ col_verified = "Verified"
 col_has_cox = "has cox"
 col_club = "Club"
 col_primary_club = "PrimaryClub"
-
+col_crew_id = "Team Id"
+col_entry_id = "Entry Id"
 
 # variables for internal columns
 col_composite = "Composite"
+col_entering_club = "EnteringClub"
 
 #================================ Sidebar ================================
 
@@ -85,8 +87,11 @@ df_playwaze_teams = df_teams.rename(columns={
     "Is verified":col_verified,
     "Is entry cox (if required)":col_has_cox
     })
+# refactor data in cox colum
 df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":True, np.nan:False, "N":False})
-
+# change the entry ids so the column name and values match the crew id from the members report
+df_playwaze_teams[col_entry_id] = df_playwaze_teams[col_entry_id].str.replace("teams/", "", regex=True)
+df_playwaze_teams.rename(columns = {col_entry_id: col_crew_id}, inplace=True)
 
 # load rowers report
 df_playwaze_rowers = pd.read_excel(playwaze_members_uploaded_file)
@@ -100,7 +105,7 @@ df_playwaze_rowers["Position"] = df_playwaze_rowers.groupby('Crew Name').cumcoun
 df_playwaze_rowers["Position"] = df_playwaze_rowers["Position"] + 1
 
 # extract coxes from teams report
-df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Name", col_crew_name, col_event, "Club"]]
+df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Name", col_crew_name, col_event, "Club", col_crew_id]]
 df_coxes["Position"] = "C"
 
 # add membership number to cox if they already exist in the members data
@@ -125,9 +130,14 @@ df_playwaze_rowers[col_composite] = False
 df_playwaze_rowers[col_composite] = df_playwaze_rowers[col_composite].mask(df_playwaze_rowers[col_club].str.contains("(composite)"),True)
 df_playwaze_rowers[col_club] = df_playwaze_rowers[col_club].str.replace(" \(composite\)", "", regex=True)
 
-#get rid of duplicate crew names: this can happen if a crew has a cox and captain assigned
+# create an "col_entering_club" column
+df_playwaze_rowers[col_entering_club] = df_playwaze_rowers[col_club]
+# where a rower in a composite crew - put them with their Primary Club
+df_playwaze_rowers[col_club] = df_playwaze_rowers[col_club].where(df_playwaze_rowers[col_composite]==False, df_playwaze_rowers[col_primary_club])
+
+# get rid of duplicate crew names: this can happen if a crew has a cox and captain assigned
 df_entries = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_crew_name) == False].sort_values(by=[col_event, col_crew_name, col_has_cox])
-num_entries = df_entries["Entry Id"].count()
+num_entries = df_entries[col_crew_id].count()
 
 # extract number of seats for each crew
 re_boat = r"([1248])[x\-\+][\+]?$"
@@ -152,7 +162,7 @@ df_events = (df_entries.groupby(col_event).count())[col_crew_members].rename("En
 
 rowers_display_columns = ["Event", "Crew Name", "Club", "Position", "Name"]
 
-df_entries_by_club_count = (df_entries.groupby(by="Club").count())["Entry Id"].rename("Entries")
+df_entries_by_club_count = (df_entries.groupby(by="Club").count())[col_crew_id].rename("Entries")
 clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
 
 #================= Main Page ================================
@@ -246,8 +256,6 @@ elif view_entries == "Clubs":
 
     st.header("Clubs")
 
-    # where a rower in a composite crew - put them with their Primary Club
-    df_playwaze_rowers[col_club] = df_playwaze_rowers[col_club].where(df_playwaze_rowers[col_composite]==False, df_playwaze_rowers[col_primary_club])
     # put all composite and end of list so that individual rowers will appear next to their actual club (if they are in a crew from their club)
     club_sorter = sorted(clubs_list)
     for club in club_sorter:
@@ -271,7 +279,6 @@ elif view_entries == "Clubs":
     df = pd.merge(df_entries_by_club_count, df_rowers_by_club_count, left_index=True, right_index=True, how="left")
     df = pd.merge(df, df_seats_by_club_count, left_index=True, right_index=True, how="left")
     st.write(df)
-    st.write("'Rowers' lists only unique individuals. Where a rower is representing more than one club, or rows in a composite, they will only be shown in the count for one of their clubs (usually the first alphabetically.)")
     csv_downloader(df, "clubs.csv")
 
     ########### list of rowers per club ################
@@ -288,7 +295,6 @@ elif view_entries == "Clubs":
         df = df[df["Club"] == club_filter].drop("Club", axis=1)
         
     st.write(df)
-    #st.write("'Rowers' lists only unique individuals. Where a rower is representing more than one club, or rows in a composite, they will only be shown in the count for one of their clubs (usually the first alphabetically.)")
     csv_downloader(df, "clubs.csv")
 
 
@@ -312,9 +318,10 @@ elif view_entries == "Rowers":
 elif view_entries == "CofD":
     st.header("CofD")
 
-    st.write(df_playwaze_rowers)
+    # st.write(df_playwaze_rowers)
 
-    df = df_playwaze_rowers[["Event", "Club", "Name", "MembershipNumber", "Position", "Team Id"]]
+    df = df_playwaze_rowers[["Event", col_entering_club, "Club", "Name", "MembershipNumber", "Position", "Team Id"]]
+    df = df.sort_values(by=col_entering_club)
 
     df[["First Name", "Surname"]] = df["Name"].str.split(" ",1, expand=True) # seperate first name and surname
     df = df.drop("Name", axis=1)
