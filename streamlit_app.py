@@ -120,6 +120,17 @@ df_playwaze_rowers = df_playwaze_rowers.append(df_coxes, ignore_index=True)
 # de-duplicate on name because some coxes won't have an ID, not ideal if people have the same name - TODO: add in more columns to de-dupe on - DOB would be good
 num_rowers = df_playwaze_rowers.loc[df_playwaze_rowers.duplicated(subset="Name")==False, "Name"].count()
 
+#=============================== Playwaze Bug Workaround: Some Team Types blank in Teams Report
+events = []
+
+clubs = df_playwaze_teams[col_club].unique() # get list of clubs
+replace_dict = dict.fromkeys(clubs, "") # create dictionary to relace club name with an empty string
+
+df_playwaze_teams[col_event] = df_playwaze_teams[col_crew_name].replace(replace_dict, regex=True) # remove club name by replacing with empty strings
+df_playwaze_teams[col_event] = df_playwaze_teams[col_event].replace("\(composite\) ", "", regex=True) # remove (composite) as the club list/regex sometimes leave this dependingon list order
+df_playwaze_teams[col_event] = df_playwaze_teams[col_event].str.strip()
+df_playwaze_teams[col_event] = df_playwaze_teams[col_event].str[:-2]
+
 #================================ Composite Crews ================================
 # where a crew is a composite, remove the composite suffix from the club name, add a composite column
 df_playwaze_teams[col_composite] = False
@@ -141,13 +152,14 @@ num_entries = df_entries[col_crew_id].count()
 
 # extract number of seats for each crew
 re_boat = r"([1248])[x\-\+][\+]?$"
-df_entries["Seats"] = df_entries[col_event].str.extract(re_boat).astype(int)
+df_entries["Seats"] = df_entries[col_event].str.extract(re_boat)#.astype(int)
 
 # extract coxed boats
 df_entries["Coxed"] = df_entries[col_event].str.contains(r"\+$").astype(int)
 
 # calculate number of rowers missing
-df_entries["Missing Rowers"] = df_entries["Seats"] - df_entries[col_crew_members]
+df_entries["Seats"] = df_entries["Seats"].astype(int)
+df_entries["Missing Rowers"] = df_entries["Seats"] - df_entries[col_crew_members].astype(int)
 
 # find missing coxes
 df_entries["Missing Cox"] = df_entries[col_has_cox] != df_entries["Coxed"]
