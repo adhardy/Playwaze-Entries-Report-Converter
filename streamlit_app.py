@@ -18,6 +18,8 @@ st.set_page_config(layout="wide") #set to wide mode
 st.image("images/2.1.png", width=300)
 st.title("Playwaze Entry System Report Converter")
 
+str_team = "Boat"
+
 # Create variable names for all the report columns - allows flexibility as columns names can be changed in playwaze. TODO: break this out into a config file
 col_event = "Event"
 col_crew_name = "Crew Name"
@@ -27,11 +29,13 @@ col_has_cox = "has cox"
 col_club = "Club"
 col_primary_club = "PrimaryClub"
 col_crew_id = "Team Id"
-col_entry_id = "Entry Id"
+col_entry_id = f"{str_team} Id"
 
 # variables for internal columns
 col_composite = "Composite"
 col_entering_club = "EnteringClub"
+
+
 
 #================================ Sidebar ================================
 
@@ -81,11 +85,11 @@ else:
 # load teams report
 df_teams = pd.read_excel(playwaze_teams_uploaded_file)
 df_playwaze_teams = df_teams.rename(columns={
-    "Entry type":col_event,
-    "Entry name":col_crew_name,
+    f"{str_team} type":col_event,
+    f"{str_team} name":col_crew_name,
     "Number of players": col_crew_members,
     "Is verified":col_verified,
-    "Is entry cox (if required)":col_has_cox
+    "Cox (if required)":col_has_cox
     })
 # refactor data in cox colum
 df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":True, np.nan:False, "N":False})
@@ -105,7 +109,8 @@ df_playwaze_rowers["Position"] = df_playwaze_rowers.groupby('Crew Name').cumcoun
 df_playwaze_rowers["Position"] = df_playwaze_rowers["Position"] + 1
 
 # extract coxes from teams report
-df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Name", col_crew_name, col_event, "Club", col_crew_id]]
+df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Cox (if required) Name", col_crew_name, col_event, "Club", col_crew_id]]
+df_coxes = df_coxes.rename(columns={"Cox (if required) Name": "Name"})
 df_coxes["Position"] = "C"
 
 # add membership number to cox if they already exist in the members data
@@ -151,7 +156,7 @@ df_entries = df_playwaze_teams.loc[df_playwaze_teams.duplicated(subset=col_crew_
 num_entries = df_entries[col_crew_id].count()
 
 # extract number of seats for each crew
-re_boat = r"([1248])[x\-\+][\+]?$"
+re_boat = r"([1248])[x\-\+][\+]?"
 df_entries["Seats"] = df_entries[col_event].str.extract(re_boat)#.astype(int)
 
 # extract coxed boats
@@ -330,11 +335,11 @@ elif view_entries == "Rowers":
 elif view_entries == "CofD":
     st.header("CofD")
 
-    # st.write(df_playwaze_rowers)
+    
 
     df = df_playwaze_rowers[["Event", col_entering_club, "Club", "Name", "MembershipNumber", "Position", "Team Id"]]
     df = df.sort_values(by=col_entering_club)
-
+    st.write(df)
     df[["First Name", "Surname"]] = df["Name"].str.split(" ",1, expand=True) # seperate first name and surname
     df = df.drop("Name", axis=1)
 
@@ -352,4 +357,4 @@ elif view_entries == "CofD":
 
 
     st.write(df)
-    csv_downloader(df, "rowers.csv")
+    # csv_downloader(df, "rowers.csv")
