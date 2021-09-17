@@ -139,7 +139,7 @@ class App():
 
     def load_and_clean_community_members_report(self) -> pd.DataFrame:
 
-        df = pd.read_excel(self.members_report)
+        df = pd.read_excel(self.community_members_report)
         df = pw.cleanup_report_columns(df, list(self.pw_config["community members report columns"].values()), list(self.pw_config["community members report columns"].keys()))
 
         return df
