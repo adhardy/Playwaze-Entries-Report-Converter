@@ -30,6 +30,7 @@ class View():
         self.get_df()
         self.display()
 
+
     def get_df(self):
 
         if self.sort_columns:
@@ -59,17 +60,22 @@ class View():
         self.display_downloader()
         self.display_footer()
 
+
     def display_header(self):
         st.header(self.view_name.title())
+
 
     def display_df(self):
         st.write(self.df)
         
+
     def display_downloader(self):
         csv_downloader(self.df_download, f"{self.view_name.lower()}.csv")
 
+
     def display_header_text(self):
         pass
+
 
     def display_footer(self):
         pass
@@ -90,6 +96,7 @@ class CrewsListView(View):
             web_hidden_columns=web_hidden_columns,
             sort_columns=sort_columns,
             index=index)
+
 
     def display_header_text(self):
         st.warning("Crews without any rowers assigned will be missing in this view.")
@@ -113,6 +120,7 @@ class EntriesView(View):
         for stat, val in self.stats.items():
             st.write(f"{stat}: {val}")
 
+
 def csv_downloader(df: pd.DataFrame, filename: str) -> None:
     """Creates a clickable link in streamlit to download the given dataframe as an Excel xlsx file."""
 
@@ -120,6 +128,7 @@ def csv_downloader(df: pd.DataFrame, filename: str) -> None:
     b64 = base64.b64encode(csvfile.encode()).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download as CSV</a>'
     st.markdown(href,unsafe_allow_html=True)
+
 
 def report_uploader(report_type: str, required: bool = True) -> st.uploaded_file_manager.UploadedFile:
     """Create a file uploader in streamlit for playwaze reports."""
