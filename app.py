@@ -58,9 +58,7 @@ class App():
     def sidebar(self):
 
         st.sidebar.header("Select View:")
-        self.view = st.sidebar.selectbox(
-            "",
-            APP_VIEWS)
+        self.view = st.sidebar.selectbox("", APP_VIEWS)
 
 
         st.sidebar.header("Upload Playwaze Reports:")
@@ -72,6 +70,7 @@ class App():
     def body(self):
 
         if self.view == ENTRIES_VIEW:
+
             stats = {
                 "Entries": self.num_entries,
                 "Total Seats (excludes coxes)": self.total_seats,
@@ -81,12 +80,9 @@ class App():
             EntriesView(df=self.df_teams, stats=stats)
 
         if self.view == CREWS_VIEW:
+
             df_crew_list = pw.get_pivoted_team_members_report(self.df_team_members)
-            View(
-                self.view, 
-                df_crew_list, 
-                index=pw.COL_CREW_ID,
-                sort_columns=[pw.COL_BOAT_TYPE, pw.COL_CREW_LETTER])
+            CrewsListView(df_crew_list)
 
             
     def report_preprocessing(self) -> None:
@@ -151,7 +147,7 @@ class View():
         df: pd.DataFrame,
         web_hidden_columns: List[str] = [],
         sort_columns: List[str] = [],
-        index = None):
+        index=None):
 
         self.view_name = view_name
         self.df = df
@@ -204,6 +200,26 @@ class View():
 
     def display_footer(self):
         pass
+
+class CrewsListView(View):
+
+    def __init__(
+        self, 
+        df: pd.DataFrame):
+
+        index=pw.COL_CREW_ID
+        sort_columns=[pw.COL_BOAT_TYPE, pw.COL_CREW_LETTER]
+        web_hidden_columns = None
+
+        super().__init__(
+            view_name=CREWS_VIEW, 
+            df=df,
+            web_hidden_columns=web_hidden_columns,
+            sort_columns=sort_columns,
+            index=index)
+
+    def display_header_text(self):
+        st.warning("Crews without any rowers assigned will be missing in this view.")
 
 class EntriesView(View):
 
