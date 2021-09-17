@@ -110,9 +110,11 @@ def get_unique_rowers(df_team_members: pd.DataFrame):
     df_unique_members = df_team_members[df_team_members.duplicated(subset=[COL_NAME, COL_SR_NUMBER]) == False]
     return df_unique_members
 
+
 def count_num_entries(df_teams: pd.DataFrame) -> int:
     """Count the number of entries from a Playwaze teams report."""
     return df_teams[COL_CREW_ID].count()
+
 
 def count_num_seats(df_teams: pd.DataFrame) -> int:
     """Count the number of seats (excluding coxes, total and filled) from a Playwaze teams report."""
@@ -121,15 +123,18 @@ def count_num_seats(df_teams: pd.DataFrame) -> int:
     total_seats = (df_teams[COL_BOAT_TYPE].str.extract(re_boat).astype(int)).sum()[0]
     return total_seats, filled_seats
 
+
 def count_unique_rowers(df_team_members: pd.DataFrame) -> int:
     """Count the number of unique rowers and coxes in the event."""
 
     return df_team_members.loc[df_team_members.duplicated(subset=COL_MEMBER_ID)==False, COL_MEMBER_ID].count()
 
+
 def get_pivoted_team_members_report(df_team_members: pd.DataFrame) -> pd.DataFrame:
     """Pivot the dataframe so that each row is a crew, and crew members are listed by their position across the row"""
 
     return df_team_members.pivot(index=[COL_CREW_ID, COL_BOAT_TYPE, COL_CLUB, COL_CREW_LETTER], columns=COL_POSITION, values=COL_NAME).reset_index()
+
 
 def get_events_report(df_teams: pd.DataFrame) -> pd.DataFrame:
     return (df_teams.groupby(COL_BOAT_TYPE).count())[COL_CREW_ID].rename("Entries")

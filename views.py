@@ -4,6 +4,12 @@ import streamlit as st
 import playwaze_reports as pw
 import base64 
 
+ENTRIES_VIEW = "Entries"
+CREWS_VIEW = "Crew List"
+EVENTS_VIEW = "Events"
+
+APP_VIEWS = (ENTRIES_VIEW, CREWS_VIEW, EVENTS_VIEW, "Clubs", "Rowers", "CofD")
+
 class View():
 
     def __init__(
@@ -79,7 +85,7 @@ class CrewsListView(View):
         web_hidden_columns = None
 
         super().__init__(
-            view_name=pw.CREWS_VIEW, 
+            view_name=CREWS_VIEW, 
             df=df,
             web_hidden_columns=web_hidden_columns,
             sort_columns=sort_columns,
@@ -100,7 +106,7 @@ class EntriesView(View):
         web_hidden_columns = [pw.COL_CAPTAIN, pw.COL_CAPTAIN_NAME, pw.COL_COX, pw.COL_CREW_NAME]
         sort_columns=[pw.COL_BOAT_TYPE, pw.COL_CLUB, pw.COL_CREW_LETTER]
 
-        super().__init__(pw.ENTRIES_VIEW, df, web_hidden_columns, sort_columns, index=index)
+        super().__init__(ENTRIES_VIEW, df, web_hidden_columns, sort_columns, index=index)
         
 
     def display_header_text(self):

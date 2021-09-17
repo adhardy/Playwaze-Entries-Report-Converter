@@ -11,17 +11,9 @@ import importlib
 importlib.reload(pw)
 importlib.reload(views)
 
-
-
 CONFIG_PATH = "config"
 DEFAULT_APP_CONFIG_PATH = os.path.join(CONFIG_PATH, "app_config.yaml")
 DEFAULT_PW_CONFIG_PATH = os.path.join(CONFIG_PATH, "playwaze_config.yaml")
-
-ENTRIES_VIEW = "Entries"
-CREWS_VIEW = "Crew List"
-EVENTS_VIEW = "Events"
-
-APP_VIEWS = (ENTRIES_VIEW, CREWS_VIEW, EVENTS_VIEW, "Clubs", "Rowers", "CofD")
 
 class App():
 
@@ -58,7 +50,7 @@ class App():
     def sidebar(self):
 
         st.sidebar.header("Select View:")
-        self.view = st.sidebar.selectbox("", APP_VIEWS)
+        self.view = st.sidebar.selectbox("", views.APP_VIEWS)
 
 
         st.sidebar.header("Upload Playwaze Reports:")
@@ -69,7 +61,7 @@ class App():
 
     def body(self):
 
-        if self.view == ENTRIES_VIEW:
+        if self.view == views.ENTRIES_VIEW:
 
             stats = {
                 "Entries": self.num_entries,
@@ -79,12 +71,12 @@ class App():
             }
             views.EntriesView(df=self.df_teams, stats=stats)
 
-        if self.view == CREWS_VIEW:
+        if self.view == views.CREWS_VIEW:
 
             df_crew_list = pw.get_pivoted_team_members_report(self.df_team_members)
             views.CrewsListView(df_crew_list)
 
-        if self.view == EVENTS_VIEW:
+        if self.view == views.EVENTS_VIEW:
 
             df_events = pw.get_events_report(self.df_teams)
             views.View(self.view, df_events)
