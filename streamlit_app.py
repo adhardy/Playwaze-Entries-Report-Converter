@@ -1,16 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import base64 
-
-#================================ Function Definitions ================================
-
-# create csv downloader
-def csv_downloader(data, filename):
-	csvfile = data.to_csv()
-	b64 = base64.b64encode(csvfile.encode()).decode()
-	href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download as CSV</a>'
-	st.markdown(href,unsafe_allow_html=True)
+import streamlit_funcs as sf
 
 #================================ Configuration ================================
 
@@ -47,38 +38,9 @@ view_entries = st.sidebar.selectbox(
 
 #================================ File Upload ================================
 
-st.sidebar.header("Upload Playwaze Teams Report:")
 
-playwaze_teams_file_check = False
-playwaze_teams_expected_filename = "Playwaze teams.xlsx"
-playwaze_teams_uploaded_file = st.sidebar.file_uploader(f"Upload '{playwaze_teams_expected_filename}'",type=['xlsx'])
-if playwaze_teams_uploaded_file is not None:
-    playwaze_teams_uploaded_file_details = {"FileName":playwaze_teams_uploaded_file.name,"FileType":playwaze_teams_uploaded_file.type,"FileSize":playwaze_teams_uploaded_file.size}
-    if playwaze_teams_uploaded_file_details["FileName"] != playwaze_teams_expected_filename:
-        st.error(f"File name must be: '{playwaze_teams_expected_filename}'")
-        
-        st.stop()
-    else:
-        playwaze_teams_file_check = True
-else:
-    st.warning("← Please Upload A Playwaze Teams Report to Continue")
-    st.stop()
 
-st.sidebar.header("Upload Playwaze Team Members Report:")
 
-playwaze_members_file_check = False
-playwaze_members_expected_filename = "Playwaze team members.xlsx"
-playwaze_members_uploaded_file = st.sidebar.file_uploader(f"Upload '{playwaze_members_expected_filename}'",type=['xlsx'])
-if playwaze_members_uploaded_file is not None:
-    playwaze_members_uploaded_file_details = {"FileName":playwaze_members_uploaded_file.name,"FileType":playwaze_members_uploaded_file.type,"FileSize":playwaze_members_uploaded_file.size}
-    if playwaze_members_uploaded_file_details["FileName"] != playwaze_members_expected_filename:
-        st.error(f"File name must be: '{playwaze_members_expected_filename}'")
-        st.stop()
-    else:
-        playwaze_members_file_check = True
-else:
-    st.warning("← Please Upload A Playwaze Members Report to Continue")
-    st.stop()
 
 #================================ Pre Processing ================================
 
@@ -358,3 +320,5 @@ elif view_entries == "CofD":
 
     st.write(df)
     # csv_downloader(df, "rowers.csv")
+
+

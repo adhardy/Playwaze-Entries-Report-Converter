@@ -1,0 +1,60 @@
+---
+team type title: "Event"
+team title plural: "Entries"
+team title singular: "Entrie"
+team support title: "Cox (if required)"
+team captain singular: "Coach/Captain (optional)"
+team captain plural: "Coaches/Captains (optional)"
+team category singular: "Club"
+team category plural: "Clubs"
+
+report file type: "xlsx"
+team report name: "Playwaze teams.xlsx"
+team member report name: "Playwaze team members.xlsx"
+
+teams report columns: 
+  team id: 1
+  community id: 2
+  team type id: 3
+  club id: 4
+  community: 5
+  team type: 6
+  club: 7
+  team name: 8
+  team letter: 9
+  sport: 10
+  number players: 11
+  verified: 12
+  captain: 13
+  support: 14
+  captain name: 15
+  captain email: 16
+  captain phone: 17
+  support name: 18
+  support email: 19
+  support phone: 20
+
+team members reports columns:
+  community: 1
+  team type: 2
+  club: 3
+  team id: 4
+  team letter: 5
+  team: 6
+  member id: 7
+  name: 8
+  gender: 9
+  dob: 10
+  sr member id: 11
+  sr member number: 12
+  membership type: 13
+  membership expiry: 14
+  rowing points: 15
+  rowing novice: 16
+  sculling points: 17
+  sculling novice: 18
+  primary club: 19
+  additional clubs: 20
+  first licence start date: 21
+  composite clubs: 22
+  verified: 23
