@@ -11,7 +11,7 @@
 
 # The column number (starting from 0) of each field
 teams report columns: 
-  cox name: 17
+  cox name: 16
   crew id: 0
   boat type: 5
   club: 6
@@ -19,9 +19,9 @@ teams report columns:
   crew letter: 8
   seats: 10
   verified: 11
-  captain: 12
-  captain name: 14
-  cox: 13
+  captain: 11
+  captain name: 13
+  cox: 12
   
 # The column number (starting from 0) of each field
 team members report columns:
@@ -34,7 +34,6 @@ team members report columns:
   name: 8
   gender: 9
   dob: 10
-  sr member id: 11
   sr member number: 12
   membership type: 13
   membership expiry: 14
@@ -46,4 +45,20 @@ team members report columns:
   additional clubs: 20
   first licence start date: 21
   composite clubs: 22
-  verified: 23
+
+community members report columns:
+  member id: 0
+  name: 1
+  dob: 3
+  gender: 4
+  sr member number: 6
+  membership type: 7
+  membership expiry: 8
+  rowing points: 9
+  rowing novice: 10
+  sculling points: 11
+  sculling novice: 12
+  primary club: 13
+  additional clubs: 14
+  first licence start date: 15
+  composite clubs: 16

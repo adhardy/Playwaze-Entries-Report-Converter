@@ -45,39 +45,39 @@ view_entries = st.sidebar.selectbox(
 #================================ Pre Processing ================================
 
 # load teams report
-df_teams = pd.read_excel(playwaze_teams_uploaded_file)
-df_playwaze_teams = df_teams.rename(columns={
-    f"{str_team} type":col_event,
-    f"{str_team} name":col_crew_name,
-    "Number of players": col_crew_members,
-    "Is verified":col_verified,
-    "Cox (if required)":col_has_cox
-    })
+# df_teams = pd.read_excel(playwaze_teams_uploaded_file)
+# df_playwaze_teams = df_teams.rename(columns={
+#     f"{str_team} type":col_event,
+#     f"{str_team} name":col_crew_name,
+#     "Number of players": col_crew_members,
+#     "Is verified":col_verified,
+#     "Cox (if required)":col_has_cox
+#     })
 # refactor data in cox colu,
-df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":True, np.nan:False, "N":False})
+# df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":True, np.nan:False, "N":False})
 # change the entry ids so the column name and values match the crew id from the members report
-df_playwaze_teams[col_entry_id] = df_playwaze_teams[col_entry_id].str.replace("teams/", "", regex=True)
-df_playwaze_teams.rename(columns = {col_entry_id: col_crew_id}, inplace=True)
+# df_playwaze_teams[col_entry_id] = df_playwaze_teams[col_entry_id].str.replace("teams/", "", regex=True)
+# df_playwaze_teams.rename(columns = {col_entry_id: col_crew_id}, inplace=True)
 
 # load rowers report
-df_playwaze_rowers = pd.read_excel(playwaze_members_uploaded_file)
-df_playwaze_rowers = df_playwaze_rowers.rename(columns={
-    "Team":col_crew_name,
-    "Team type": col_event
-    })
+# df_playwaze_rowers = pd.read_excel(playwaze_members_uploaded_file)
+# df_playwaze_rowers = df_playwaze_rowers.rename(columns={
+#     "Team":col_crew_name,
+#     "Team type": col_event
+#     })
 
 # assign a position to rowers
-df_playwaze_rowers["Position"] = df_playwaze_rowers.groupby('Crew Name').cumcount()
-df_playwaze_rowers["Position"] = df_playwaze_rowers["Position"] + 1
+# df_playwaze_rowers["Position"] = df_playwaze_rowers.groupby('Crew Name').cumcount()
+# df_playwaze_rowers["Position"] = df_playwaze_rowers["Position"] + 1
 
 # extract coxes from teams report
-df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Cox (if required) Name", col_crew_name, col_event, "Club", col_crew_id]]
-df_coxes = df_coxes.rename(columns={"Cox (if required) Name": "Name"})
-df_coxes["Position"] = "C"
+# df_coxes = df_playwaze_teams.loc[df_playwaze_teams[col_has_cox] == 1, ["Cox (if required) Name", col_crew_name, col_event, "Club", col_crew_id]]
+# df_coxes = df_coxes.rename(columns={"Cox (if required) Name": "Name"})
+# df_coxes["Position"] = "C"
 
 # add membership number to cox if they already exist in the members data
 # create a de-duplicated df of individuals and membership numbers. TODO: optional import of Azolve report to make sure we get everyone
-df_members = df_playwaze_rowers[df_playwaze_rowers.duplicated(subset=["Name", "MembershipNumber"]) == False]
+# df_members = df_playwaze_rowers[df_playwaze_rowers.duplicated(subset=["Name", "MembershipNumber"]) == False]
 
 # lookup coxed in the members dataframe and assing memberhip number of they have one
 df_coxes = pd.merge(df_coxes, df_members[["Name", "MembershipNumber"]], left_on=["Name"], right_on=["Name"], how="left")
