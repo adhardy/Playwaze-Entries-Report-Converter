@@ -5,35 +5,35 @@ import streamlit as st
 
 #================================ Configuration ================================
 
-st.set_page_config(layout="wide") #set to wide mode
-st.image("images/2.1.png", width=300)
-st.title("Playwaze Entry System Report Converter")
+# st.set_page_config(layout="wide") #set to wide mode
+# # st.image("images/2.1.png", width=300)
+# # st.title("Playwaze Entry System Report Converter")
 
-str_team = "Boat"
+# str_team = "Boat"
 
-# Create variable names for all the report columns - allows flexibility as columns names can be changed in playwaze. TODO: break this out into a config file
-col_event = "Event"
-col_crew_name = "Crew Name"
-col_crew_members = "Rowers"
-col_verified = "Verified"
-col_has_cox = "has cox"
-col_club = "Club"
-col_primary_club = "PrimaryClub"
-col_crew_id = "Team Id"
-col_entry_id = f"{str_team} Id"
+# # Create variable names for all the report columns - allows flexibility as columns names can be changed in playwaze. TODO: break this out into a config file
+# col_event = "Event"
+# col_crew_name = "Crew Name"
+# col_crew_members = "Rowers"
+# col_verified = "Verified"
+# col_has_cox = "has cox"
+# col_club = "Club"
+# col_primary_club = "PrimaryClub"
+# col_crew_id = "Team Id"
+# col_entry_id = f"{str_team} Id"
 
-# variables for internal columns
-col_composite = "Composite"
-col_entering_club = "EnteringClub"
+# # variables for internal columns
+# col_composite = "Composite"
+# col_entering_club = "EnteringClub"
 
 
 
 #================================ Sidebar ================================
 
-st.sidebar.header("Select View:")
-view_entries = st.sidebar.selectbox(
-    "",
-    ("Entries", "Crews", "Events", "Clubs", "Rowers", "CofD")
+# st.sidebar.header("Select View:")
+# view_entries = st.sidebar.selectbox(
+#     "",
+#     ("Entries", "Crews", "Events", "Clubs", "Rowers", "CofD")
 )
 
 #================================ File Upload ================================

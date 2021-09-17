@@ -130,3 +130,6 @@ def get_pivoted_team_members_report(df_team_members: pd.DataFrame) -> pd.DataFra
     """Pivot the dataframe so that each row is a crew, and crew members are listed by their position across the row"""
 
     return df_team_members.pivot(index=[COL_CREW_ID, COL_BOAT_TYPE, COL_CLUB, COL_CREW_LETTER], columns=COL_POSITION, values=COL_NAME).reset_index()
+
+def get_events_report(df_teams: pd.DataFrame) -> pd.DataFrame:
+    return (df_teams.groupby(COL_BOAT_TYPE).count())[COL_CREW_ID].rename("Entries")
