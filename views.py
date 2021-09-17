@@ -7,8 +7,11 @@ import base64
 ENTRIES_VIEW = "Entries"
 CREWS_VIEW = "Crew List"
 EVENTS_VIEW = "Events"
+CLUBS_VIEW = "Clubs"
+ROWERS_VIEW = "Rowers"
+COFD_VIEW = "CoFD"
 
-APP_VIEWS = (ENTRIES_VIEW, CREWS_VIEW, EVENTS_VIEW, "Clubs", "Rowers", "CofD")
+APP_VIEWS = (ENTRIES_VIEW, CREWS_VIEW, EVENTS_VIEW, CLUBS_VIEW, ROWERS_VIEW, COFD_VIEW)
 
 class View():
 

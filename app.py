@@ -81,6 +81,15 @@ class App():
             df_events = pw.get_events_report(self.df_teams)
             views.View(self.view, df_events)
 
+        if self.view == views.CLUBS_VIEW:
+            df_clubs = pw.get_clubs_report(self.df_teams, self.df_team_members)
+            views.View(self.view, df_clubs)
+
+        if self.view == views.ROWERS_VIEW:
+            pass
+
+        if self.view == views.COFD_VIEW:
+            pass
             
     def report_preprocessing(self) -> None:
 
@@ -135,6 +144,7 @@ class App():
         df = pw.cleanup_report_columns(df, list(self.pw_config["community members report columns"].values()), list(self.pw_config["community members report columns"].keys()))
 
         return df
+
 
 def load_from_yaml(config_path: str) -> Dict:
     """Parses a yaml file and returns a dictionary."""

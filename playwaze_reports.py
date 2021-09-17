@@ -138,3 +138,22 @@ def get_pivoted_team_members_report(df_team_members: pd.DataFrame) -> pd.DataFra
 
 def get_events_report(df_teams: pd.DataFrame) -> pd.DataFrame:
     return (df_teams.groupby(COL_BOAT_TYPE).count())[COL_CREW_ID].rename("Entries")
+
+
+def get_clubs_report(df_teams: pd.DataFrame, df_team_members: pd.DataFrame) -> pd.DataFrame:
+
+    # count entries by club
+    df_entries_by_club_count = (df_teams.groupby(by=COL_CLUB))[COL_CREW_ID].count()
+
+    # count rowers by club. squeeze: force into a series
+    df_rowers_by_club_count = (df_team_members[df_team_members.duplicated(subset=COL_SR_NUMBER)==False].sort_values(by=COL_CLUB))[[COL_CLUB, COL_SR_NUMBER]].groupby(COL_CLUB).count().squeeze().rename("rowers") 
+    
+    #count seats by club
+    df_seats_by_club_count = (df_teams.groupby(by=COL_CLUB).sum())[COL_SEATS].rename("seats")
+
+
+    # merge all the dataframes together
+    df = pd.merge(df_entries_by_club_count, df_rowers_by_club_count, left_index=True, right_index=True, how="left")
+    df = pd.merge(df, df_seats_by_club_count, left_index=True, right_index=True, how="left")
+
+    return df

@@ -176,18 +176,18 @@ clubs_list = df_entries_by_club_count.index.tolist() #get list of clubs
 
 elif view_entries == "Crews":
     
-    st.header("Crews")
+    # st.header("Crews")
     
-    club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
-    member_info = st.selectbox("Display:", ["Name", "MembershipNumber"])
+    # club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+    # member_info = st.selectbox("Display:", ["Name", "MembershipNumber"])
 
-    # set columns to display
-    rowers_display_cols = ["Event", "Crew Name", "Club", "Position", member_info]
+    # # set columns to display
+    # rowers_display_cols = ["Event", "Crew Name", "Club", "Position", member_info]
 	
-    df_playwaze_rowers = df_playwaze_rowers.sort_values(by=[col_event, col_crew_name, "Club"])
+    # df_playwaze_rowers = df_playwaze_rowers.sort_values(by=[col_event, col_crew_name, "Club"])
     
-    # pivot the dataframe so that each row is a crew, and crew members are listed by their position across the row
-    df = df_playwaze_rowers[rowers_display_cols].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values=member_info).reset_index()
+    # # pivot the dataframe so that each row is a crew, and crew members are listed by their position across the row
+    # df = df_playwaze_rowers[rowers_display_cols].pivot(index=[col_event, col_crew_name, "Club"], columns="Position", values=member_info).reset_index()
     
     # add in crews that don't have any rowers
     # get the crew lists from both tables
@@ -218,16 +218,16 @@ elif view_entries == "Crews":
     if club_filter != "All":
         df = df[df["Club"] == club_filter]
 
-    st.write(df)
-    csv_downloader(df, "crews.csv")
+    # st.write(df)
+    # csv_downloader(df, "crews.csv")
 
 #================= Events ================================
 
-elif view_entries == "Events":
-    st.header("Events")
-    df = df_events
-    st.write(df)
-    csv_downloader(df, "events.csv")
+# elif view_entries == "Events":
+#     st.header("Events")
+#     df = df_events
+#     st.write(df)
+#     csv_downloader(df, "events.csv")
 
 #================= Clubs ================================
 
@@ -320,5 +320,3 @@ elif view_entries == "CofD":
 
     st.write(df)
     # csv_downloader(df, "rowers.csv")
-
-
