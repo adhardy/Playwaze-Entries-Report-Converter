@@ -1,46 +1,35 @@
 ---
-team type title: "Event"
-team title plural: "Entries"
-team title singular: "Entrie"
-team support title: "Cox (if required)"
-team captain singular: "Coach/Captain (optional)"
-team captain plural: "Coaches/Captains (optional)"
-team category singular: "Club"
-team category plural: "Clubs"
+# Take these from the "Naming Conventions in Playwaze"
+# team type title: "Event"
+# team title plural: "Entries"
+# team title singular: "Entrie"
+# team support title: "Cox (if required)"
+# team captain singular: "Coach/Captain (optional)"
+# team captain plural: "Coaches/Captains (optional)"
+# team category singular: "Club"
+# team category plural: "Clubs"
 
-report file type: "xlsx"
-team report name: "Playwaze teams.xlsx"
-team member report name: "Playwaze team members.xlsx"
-
+# The column number (starting from 0) of each field
 teams report columns: 
-  team id: 1
-  community id: 2
-  team type id: 3
-  club id: 4
-  community: 5
-  team type: 6
-  club: 7
-  team name: 8
-  team letter: 9
-  sport: 10
-  number players: 11
-  verified: 12
-  captain: 13
-  support: 14
-  captain name: 15
-  captain email: 16
-  captain phone: 17
-  support name: 18
-  support email: 19
-  support phone: 20
-
-team members reports columns:
-  community: 1
-  team type: 2
+  cox name: 17
+  crew id: 0
+  boat type: 5
+  club: 6
+  crew name: 7
+  crew letter: 8
+  seats: 10
+  verified: 11
+  captain: 12
+  captain name: 14
+  cox: 13
+  
+# The column number (starting from 0) of each field
+team members report columns:
+  boat type: 2
   club: 3
-  team id: 4
-  team letter: 5
-  team: 6
+  crew id: 4
+  crew letter: 5
+  crew name: 6
   member id: 7
   name: 8
   gender: 9

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import streamlit_funcs as sf
+
 
 #================================ Configuration ================================
 
@@ -53,7 +53,7 @@ df_playwaze_teams = df_teams.rename(columns={
     "Is verified":col_verified,
     "Cox (if required)":col_has_cox
     })
-# refactor data in cox colum
+# refactor data in cox colu,
 df_playwaze_teams[col_has_cox] = df_playwaze_teams[col_has_cox].replace({"Y":True, np.nan:False, "N":False})
 # change the entry ids so the column name and values match the crew id from the members report
 df_playwaze_teams[col_entry_id] = df_playwaze_teams[col_entry_id].str.replace("teams/", "", regex=True)
