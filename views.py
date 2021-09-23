@@ -9,7 +9,7 @@ CREWS_VIEW = "Crew List"
 EVENTS_VIEW = "Events"
 CLUBS_VIEW = "Clubs"
 ROWERS_VIEW = "Rowers"
-COFD_VIEW = "CoFD"
+COFD_VIEW = "CofD"
 
 APP_VIEWS = (ENTRIES_VIEW, CREWS_VIEW, EVENTS_VIEW, CLUBS_VIEW, ROWERS_VIEW, COFD_VIEW)
 
@@ -73,7 +73,7 @@ class View():
         
 
     def display_downloader(self):
-        csv_downloader(self.df_download, f"{self.view_name.lower()}.csv")
+        df_downloader(self.df_download, f"{self.view_name.lower()}.csv")
 
 
     def display_header_text(self):
@@ -123,14 +123,37 @@ class EntriesView(View):
         for stat, val in self.stats.items():
             st.write(f"{stat}: {val}")
 
+class CofDView(View):
 
-def csv_downloader(df: pd.DataFrame, filename: str) -> None:
-    """Creates a clickable link in streamlit to download the given dataframe as an Excel xlsx file."""
+    def __init__(
+        self,
+        df: pd.DataFrame):
+
+        super().__init__("CofD", df)
+        
+
+    def display_footer(self):
+
+        with open("resources/OaraConfig.csv", "r") as f:
+            # load csv file as string
+            csvtext = f.readlines()
+        csvtext = "".join(csvtext) # convert list to string
+        csv_downloader(csvtext, "OaraConfig.csv", "Download Regatta Program Config")
+
+
+def csv_downloader(csvfile: str, filename: str, link_text: str = "Download as CSV") -> None:
+    """Creates a clickable link in streamlit to download the given csv string as a file."""
+
+    b64 = base64.b64encode(csvfile.encode()).decode()
+    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">{link_text}</a>'
+    st.markdown(href,unsafe_allow_html=True)
+
+
+def df_downloader(df: pd.DataFrame, filename: str) -> None:
+    """Creates a clickable link in streamlit to download the given dataframe as a csv file."""
 
     csvfile = df.to_csv()
-    b64 = base64.b64encode(csvfile.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download as CSV</a>'
-    st.markdown(href,unsafe_allow_html=True)
+    csv_downloader(csvfile, filename)
 
 
 def report_uploader(report_type: str, required: bool = True) -> st.uploaded_file_manager.UploadedFile:
