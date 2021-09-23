@@ -95,7 +95,9 @@ class App():
             views.View(self.view, df_clubs)
 
         if self.view == views.ROWERS_VIEW:
-            pass
+            st.warning("Rowers who are entered into composites may be associated with the wrong club.")
+            df_rowers = pw.get_rowers_report(self.df_team_members)
+            views.View(self.view, df_rowers)
 
         if self.view == views.COFD_VIEW:
             pass

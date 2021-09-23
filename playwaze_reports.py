@@ -186,3 +186,12 @@ def get_clubs_report(df_teams: pd.DataFrame, df_team_members: pd.DataFrame) -> p
     df = pd.merge(df, df_seats_by_club_count, left_index=True, right_index=True, how="left")
 
     return df
+
+def get_rowers_report(df_team_members: pd.DataFrame) -> pd.DataFrame:
+
+    df = df_team_members[[COL_SR_NUMBER, COL_NAME, COL_CREW_NAME, COL_CLUB]]
+    df['idx'] = df.groupby(COL_SR_NUMBER).cumcount() # uniquely number each crew each rower is in
+    df['idx'] = df['idx'] + 1 # index from 1
+    df = df.pivot(index=[COL_SR_NUMBER, COL_NAME, COL_CLUB], values=COL_CREW_NAME, columns="idx").reset_index().set_index(COL_SR_NUMBER)
+    
+    return df
