@@ -137,7 +137,12 @@ def get_pivoted_team_members_report(df_team_members: pd.DataFrame, df_teams: pd.
     df = df_team_members.pivot(index=[COL_CREW_ID], columns=COL_POSITION, values=COL_NAME).reset_index()
 
     # merge with the teams report so that crews without any assigned crew are present in the report
-    df = pd.merge(df_teams, df, on=COL_CREW_ID, how='left')
+    df = pd.merge(
+        df_teams.drop([COL_CLUB, COL_SEATS, COL_VERIFIED, COL_CAPTAIN, COL_CAPTAIN_NAME, COL_COX], axis=1), 
+        df, 
+        on=COL_CREW_ID, 
+        how='left'
+        )
 
     return df
 

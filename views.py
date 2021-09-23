@@ -92,7 +92,7 @@ class CrewsListView(View):
         index=pw.COL_CREW_ID
         sort_columns=[pw.COL_BOAT_TYPE, pw.COL_CREW_LETTER]
         web_hidden_columns = None
-
+        
         super().__init__(
             view_name=CREWS_VIEW, 
             df=df,

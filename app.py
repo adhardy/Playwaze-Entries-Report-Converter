@@ -24,7 +24,12 @@ class App():
             app_config_path, 
             pw_config_path)
 
-        st.set_page_config(layout=self.app_config["layout"]) #set to wide mode
+        st.set_page_config(
+            layout=self.app_config["layout"],
+            page_title=self.app_config["site title"],
+            page_icon=self.app_config["logo path"],
+            initial_sidebar_state="expanded"
+        )
 
 
     def load_config(self, app_config_path, pw_config_path) -> List[Dict]:
