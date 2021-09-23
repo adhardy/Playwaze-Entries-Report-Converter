@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from typing import List, Union
+import re
 
 # column names for reports for convenience in code. The strings should match that in the playwaze config file.
 COL_CREW_ID = "crew id"
@@ -43,10 +44,11 @@ COMMUNITY_MEMBER_COLUMNS = [COL_MEMBER_ID, COL_NAME, COL_DOB, COL_GENDER, COL_SR
 
 # additional columns we create
 COL_POSITION = "position"
+COL_COMPOSITE = "composite"
 
-# file type of uploaded reports
-REPORT_FILE_TYPE = "xlsx"
+REPORT_FILE_TYPE = "xlsx" # file type of uploaded reports
 
+COMPOSITE_STRING = "(composite)" # string used to indicate a composite crew
 
 def cleanup_report_columns(df: pd.DataFrame, column_numbers: List[int], column_names: List[str]) -> pd.DataFrame:
 
@@ -62,6 +64,22 @@ def clean_booleans(df: pd.DataFrame) -> pd.DataFrame:
     df = df.replace({"Y":True, np.nan:False, "N":False})
     return df.astype(bool)
 
+
+def clean_composites(df: pd.DataFrame, set_composite_flag: bool = True) -> pd.DataFrame:
+    """Removes the '(composite)' tag from the club name, optionally adds a boolean composite column"""
+
+    # add a composite column, set to True if the crew is a composite
+    if set_composite_flag:
+        df[COL_COMPOSITE] = False
+
+        bool_composite_crew = df[COL_CLUB].str.contains(COMPOSITE_STRING, regex=True) # boolean array showing crews that are composites
+
+        df.loc[bool_composite_crew, COL_COMPOSITE] = True
+
+    # remove the composite tag in the club name
+    df[COL_CLUB] = df[COL_CLUB].replace(re.escape(f" {COMPOSITE_STRING}"), "", regex=True)
+
+    return df
 
 def assign_rower_position(df):
     """Assign a unique position (number) to rowers in each crew"""
@@ -138,7 +156,7 @@ def get_pivoted_team_members_report(df_team_members: pd.DataFrame, df_teams: pd.
 
     # merge with the teams report so that crews without any assigned crew are present in the report
     df = pd.merge(
-        df_teams.drop([COL_CLUB, COL_SEATS, COL_VERIFIED, COL_CAPTAIN, COL_CAPTAIN_NAME, COL_COX], axis=1), 
+        df_teams[[COL_CREW_ID, COL_BOAT_TYPE, COL_CREW_NAME]], 
         df, 
         on=COL_CREW_ID, 
         how='left'

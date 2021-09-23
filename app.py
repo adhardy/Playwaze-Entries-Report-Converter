@@ -130,6 +130,7 @@ class App():
         df = df[pw.TEAM_COLUMNS] # make sure they are in order
 
         df[[pw.COL_COX, pw.COL_VERIFIED, pw.COL_CAPTAIN]] = pw.clean_booleans(df[[pw.COL_COX, pw.COL_VERIFIED, pw.COL_CAPTAIN]])
+        df = pw.clean_composites(df)
         df[pw.COL_CREW_ID] = df[pw.COL_CREW_ID].str.replace("teams/", "", regex=True) # change the entry ids so the column name and values match the crew id from the members report
     
         return df
@@ -139,6 +140,7 @@ class App():
         
         df = pd.read_excel(self.team_members_report) # load team members report
         df = pw.cleanup_report_columns(df, list(self.pw_config["team members report columns"].values()), list(self.pw_config["team members report columns"].keys()))
+        df = pw.clean_composites(df, set_composite_flag=False)
         df = df[pw.TEAM_MEMBER_COLUMNS] # make sure they are in order
 
         df[[pw.COL_ROW_NOVICE, pw.COL_SCULL_NOVICE]] = pw.clean_booleans(df[[pw.COL_ROW_NOVICE, pw.COL_SCULL_NOVICE]])
