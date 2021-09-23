@@ -130,10 +130,16 @@ def count_unique_rowers(df_team_members: pd.DataFrame) -> int:
     return df_team_members.loc[df_team_members.duplicated(subset=COL_MEMBER_ID)==False, COL_MEMBER_ID].count()
 
 
-def get_pivoted_team_members_report(df_team_members: pd.DataFrame) -> pd.DataFrame:
+def get_pivoted_team_members_report(df_team_members: pd.DataFrame, df_teams: pd.DataFrame) -> pd.DataFrame:
     """Pivot the dataframe so that each row is a crew, and crew members are listed by their position across the row"""
+    
+    # get the crew_ID as index, crew members as columns
+    df = df_team_members.pivot(index=[COL_CREW_ID], columns=COL_POSITION, values=COL_NAME).reset_index()
 
-    return df_team_members.pivot(index=[COL_CREW_ID, COL_BOAT_TYPE, COL_CLUB, COL_CREW_LETTER], columns=COL_POSITION, values=COL_NAME).reset_index()
+    # merge with the teams report so that crews without any assigned crew are present in the report
+    df = pd.merge(df_teams, df, on=COL_CREW_ID, how='left')
+
+    return df
 
 
 def get_events_report(df_teams: pd.DataFrame) -> pd.DataFrame:

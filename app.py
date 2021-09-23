@@ -35,6 +35,7 @@ class App():
 
         return app_config, pw_config
 
+
     def display(self):
 
         self.header()
@@ -75,7 +76,8 @@ class App():
 
         if self.view == views.CREWS_VIEW:
 
-            df_crew_list = pw.get_pivoted_team_members_report(self.df_team_members)
+            df_crew_list = pw.get_pivoted_team_members_report(self.df_team_members, self.df_teams)
+            # st.write(df_crew_list.sort_values(by=[f"{pw.COL_CLUB}", f"{pw.COL_BOAT_TYPE}"]))
             views.CrewsListView(df_crew_list)
 
         if self.view == views.EVENTS_VIEW:

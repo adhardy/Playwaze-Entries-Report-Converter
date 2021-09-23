@@ -102,7 +102,7 @@ class CrewsListView(View):
 
 
     def display_header_text(self):
-        st.warning("Crews without any rowers assigned will be missing in this view.")
+        pass
 
 class EntriesView(View):
 

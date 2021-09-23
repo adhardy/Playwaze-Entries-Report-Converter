@@ -191,29 +191,29 @@ elif view_entries == "Crews":
     
     # add in crews that don't have any rowers
     # get the crew lists from both tables
-    df_members_crews = df_playwaze_rowers[["Crew Name", "Event", "Club"]]
-    df_members_crews = df_members_crews[df_members_crews.duplicated(subset="Crew Name") == False]
+    # df_members_crews = df_playwaze_rowers[["Crew Name", "Event", "Club"]]
+    # df_members_crews = df_members_crews[df_members_crews.duplicated(subset="Crew Name") == False]
 
-    # find crews in entries that aren't in members (ie.e crew that have noone entered in them)
-    # hacky - concat both lists so we can use np.setdiff1d and then split them again, assign a combo of characters that is very unlikely to appear in an actual crew name
-    split_string = "|+_*&" 
-    df_all_crews = df_entries[col_event] + split_string + df_entries[col_crew_name] + split_string + df_entries["Club"]
-    df_members_crews = df_members_crews["Event"] + split_string +  df_members_crews["Crew Name"] + split_string + df_members_crews["Club"]
+    # # find crews in entries that aren't in members (ie.e crew that have noone entered in them)
+    # # hacky - concat both lists so we can use np.setdiff1d and then split them again, assign a combo of characters that is very unlikely to appear in an actual crew name
+    # split_string = "|+_*&" 
+    # df_all_crews = df_entries[col_event] + split_string + df_entries[col_crew_name] + split_string + df_entries["Club"]
+    # df_members_crews = df_members_crews["Event"] + split_string +  df_members_crews["Crew Name"] + split_string + df_members_crews["Club"]
 
-    np_missing_crews = np.setdiff1d(df_all_crews, df_members_crews)
-    np_missing_crews = [s.split(split_string) for s in np_missing_crews]
+    # np_missing_crews = np.setdiff1d(df_all_crews, df_members_crews)
+    # np_missing_crews = [s.split(split_string) for s in np_missing_crews]
 
-    # reconstruct a dataframe from the contatenated data
-    df_missing_crews = pd.DataFrame()   
-    df_missing_crews["Event"] = [ x[0] for x in np_missing_crews ]
-    df_missing_crews["Crew Name"] = [ x[1] for x in np_missing_crews ]
-    df_missing_crews["Club"] = [ x[2] for x in np_missing_crews ]
+    # # reconstruct a dataframe from the contatenated data
+    # df_missing_crews = pd.DataFrame()   
+    # df_missing_crews["Event"] = [ x[0] for x in np_missing_crews ]
+    # df_missing_crews["Crew Name"] = [ x[1] for x in np_missing_crews ]
+    # df_missing_crews["Club"] = [ x[2] for x in np_missing_crews ]
 
-    # add the missing crews to the crews dataframe
-    df = df.append(df_missing_crews, ignore_index=True).sort_values(by=["Event", "Crew Name"]).reset_index(drop=True)
+    # # add the missing crews to the crews dataframe
+    # df = df.append(df_missing_crews, ignore_index=True).sort_values(by=["Event", "Crew Name"]).reset_index(drop=True)
 
-    # replace nan
-    df = df.replace(np.nan, '', regex=True)
+    # # replace nan
+    # df = df.replace(np.nan, '', regex=True)
 
     if club_filter != "All":
         df = df[df["Club"] == club_filter]
