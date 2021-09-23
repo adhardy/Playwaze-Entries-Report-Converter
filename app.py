@@ -26,11 +26,6 @@ class App():
 
         st.set_page_config(layout=self.app_config["layout"]) #set to wide mode
 
-        self.header()
-        self.sidebar()
-        self.report_preprocessing()
-        self.body()
-
 
     def load_config(self, app_config_path, pw_config_path) -> List[Dict]:
         """Loads the app and playwaze configurations."""
@@ -39,6 +34,13 @@ class App():
         pw_config = load_from_yaml(pw_config_path)
 
         return app_config, pw_config
+
+    def display(self):
+
+        self.header()
+        self.sidebar()
+        self.report_preprocessing()
+        self.body()
 
 
     def header(self):
@@ -156,5 +158,5 @@ def load_from_yaml(config_path: str) -> Dict:
 if __name__ == "__main__":
 
     app = App()
-
+    app.display()
 
