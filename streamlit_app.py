@@ -277,22 +277,22 @@ elif view_entries == "Clubs":
     csv_downloader(df, "clubs.csv")
 
 
-elif view_entries == "Rowers":
-    st.header("Rowers")
-    df = df_playwaze_rowers[["MembershipNumber", "Name", "Crew Name", "Club"]]
-    df['idx'] = df.groupby('Name').cumcount()
-    df = df.pivot(index=["MembershipNumber", "Name", "Club"], values="Crew Name", columns="idx").reset_index()
+# elif view_entries == "Rowers":
+#     st.header("Rowers")
+#     df = df_playwaze_rowers[["MembershipNumber", "Name", "Crew Name", "Club"]]
+#     df['idx'] = df.groupby('Name').cumcount()
+#     df = df.pivot(index=["MembershipNumber", "Name", "Club"], values="Crew Name", columns="idx").reset_index()
 
-    club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
+#     club_filter = st.selectbox("Filter by club:", ["All"] + clubs_list)
 
-    sort_by = st.selectbox("Sort by:", ["Name", "Club", "Membership Number"])
-    if club_filter != "All":
-        df = df[df["Club"] == club_filter]
+#     sort_by = st.selectbox("Sort by:", ["Name", "Club", "Membership Number"])
+#     if club_filter != "All":
+#         df = df[df["Club"] == club_filter]
 
-    df = df.sort_values(by=sort_by)
+#     df = df.sort_values(by=sort_by)
 
-    st.write(df)
-    csv_downloader(df, "rowers.csv")
+#     st.write(df)
+#     csv_downloader(df, "rowers.csv")
 
 elif view_entries == "CofD":
     st.header("CofD")

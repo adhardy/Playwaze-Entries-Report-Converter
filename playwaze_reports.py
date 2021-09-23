@@ -72,7 +72,7 @@ def clean_composites(df: pd.DataFrame, set_composite_flag: bool = True) -> pd.Da
     if set_composite_flag:
         df[COL_COMPOSITE] = False
 
-        bool_composite_crew = df[COL_CLUB].str.contains(COMPOSITE_STRING, regex=True) # boolean array showing crews that are composites
+        bool_composite_crew = df[COL_CLUB].str.contains(re.escape(COMPOSITE_STRING), regex=True) # boolean array showing crews that are composites
 
         df.loc[bool_composite_crew, COL_COMPOSITE] = True
 
@@ -195,3 +195,11 @@ def get_rowers_report(df_team_members: pd.DataFrame) -> pd.DataFrame:
     df = df.pivot(index=[COL_SR_NUMBER, COL_NAME, COL_CLUB], values=COL_CREW_NAME, columns="idx").reset_index().set_index(COL_SR_NUMBER)
     
     return df
+
+def get_COFD_report(df_team_members: pd.DataFrame) -> pd.DataFrame:
+
+    df = df_team_members
+    df[["first name", "surname"]] = df[COL_NAME].str.split(" ",1, expand=True) # seperate first name and surname
+    df = df[[COL_BOAT_TYPE, COL_CLUB, "first name", "surname", COL_PRIMARY_CLUB, COL_SR_NUMBER, COL_POSITION, COL_CREW_ID, COL_CREW_LETTER]]
+
+    return df.reset_index(drop=True)

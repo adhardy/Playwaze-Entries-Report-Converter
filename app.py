@@ -100,7 +100,8 @@ class App():
             views.View(self.view, df_rowers)
 
         if self.view == views.COFD_VIEW:
-            pass
+            df_CoFD = pw.get_COFD_report(self.df_team_members)
+            views.View(self.view, df_CoFD)
             
     def report_preprocessing(self) -> None:
 
