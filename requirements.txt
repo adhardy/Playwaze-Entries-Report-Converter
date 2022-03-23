@@ -1,3 +1,3 @@
 openpyxl
 pyyaml
-streamlit==0.89
+streamlit
