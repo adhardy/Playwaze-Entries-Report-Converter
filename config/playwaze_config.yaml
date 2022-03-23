@@ -32,19 +32,19 @@ team members report columns:
   crew name: 6
   member id: 7
   name: 8
-  gender: 9
-  dob: 10
-  sr member number: 12
-  membership type: 13
-  membership expiry: 14
-  rowing points: 15
-  rowing novice: 16
-  sculling points: 17
-  sculling novice: 18
-  primary club: 19
-  additional clubs: 20
-  first licence start date: 21
-  composite clubs: 22
+  gender: 10
+  dob: 11
+  sr member number: 13
+  membership type: 14
+  membership expiry: 15
+  rowing points: 16
+  rowing novice: 17
+  sculling points: 18
+  sculling novice: 19
+  primary club: 20
+  additional clubs: 21
+  first licence start date: 22
+  composite clubs: 23
 
 community members report columns:
   member id: 0
