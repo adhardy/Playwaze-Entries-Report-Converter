@@ -11,7 +11,6 @@
 
 # The column number (starting from 0) of each field
 teams report columns: 
-  cox name: 16
   crew id: 0
   boat type: 5
   club: 6
@@ -19,9 +18,11 @@ teams report columns:
   crew letter: 8
   seats: 10
   verified: 11
-  captain: 11
-  captain name: 13
-  cox: 12
+  captain: 12
+  cox: 13
+  captain name: 14
+  cox name: 20
+  notes: 21
   
 # The column number (starting from 0) of each field
 team members report columns:
