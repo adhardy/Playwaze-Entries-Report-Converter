@@ -1,5 +1,3 @@
 openpyxl
-pandas
 pyyaml
-streamlit
-numpy
+streamlit==0.89
