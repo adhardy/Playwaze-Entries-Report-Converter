@@ -132,6 +132,14 @@ class App():
         df = pw.cleanup_report_columns(df, list(self.pw_config["teams report columns"].values()), list(self.pw_config["teams report columns"].keys()))
         df = df[pw.TEAM_COLUMNS] # make sure they are in order
 
+        # check that all of the columns in each row are not empty
+        required_columns = [pw.COL_CREW_ID, pw.COL_BOAT_TYPE, pw.COL_CLUB, pw.COL_CREW_NAME, pw.COL_CREW_LETTER, pw.COL_SEATS, pw.COL_VERIFIED, pw.COL_CAPTAIN, pw.COL_COX]
+        # check that there are no nans in the required columns
+        for col in required_columns:
+            if df[col].isnull().sum() > 0:
+                st.error(f"{col.title()} is missing values. Please check the teams report.")
+                st.stop()
+
         df[[pw.COL_COX, pw.COL_VERIFIED, pw.COL_CAPTAIN]] = pw.clean_booleans(df[[pw.COL_COX, pw.COL_VERIFIED, pw.COL_CAPTAIN]])
         df = pw.clean_composites(df)
         df[pw.COL_CREW_ID] = df[pw.COL_CREW_ID].str.replace("teams/", "", regex=True) # change the entry ids so the column name and values match the crew id from the members report
