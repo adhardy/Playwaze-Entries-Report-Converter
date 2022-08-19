@@ -175,7 +175,7 @@ def df_downloader(df: pd.DataFrame, filename: str) -> None:
 
 def report_uploader(
     report_type: str, required: bool = True
-) -> st.uploaded_file_manager.UploadedFile:
+):
     """Create a file uploader in streamlit for playwaze reports."""
 
     uploaded_file = st.sidebar.file_uploader(
