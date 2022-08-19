@@ -10,7 +10,7 @@ The app allows users to view the new reports as data tables within the browser, 
 
 The app is written using [Streamlit](www.streamlit.io).
 
-A [ready-deployed](https://share.streamlit.io/adhardy/playwaze-entries-report-converter/src/streamlit_app.py) version of the app is available to use. This will always use the most up-to-date code in the master branch.
+A [ready-deployed](https://adhardy-playwaze-entries-report-converter-streamlit-app-wq4t3n.streamlitapp.com/) version of the app is available to use. This will always use the most up-to-date code in the master branch.
 
 The app can be easily re-deployed on streamlit. Create an account at [www.streamlit.io](www.streamlit.io) and click the "new app" button. Enter the url of of the repository: <https://github.com/adhardy/Playwaze-Entries-Report-Converter>. Streamlit will deploy the app for you and it will be available to use within a few minutes.
 
