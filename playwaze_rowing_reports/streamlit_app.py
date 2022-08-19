@@ -3,8 +3,8 @@ import yaml
 import pandas as pd
 import os
 from typing import Dict, List
-import playwaze_reports as pw
-import views
+import playwaze_rowing_reports.playwaze_reports as pw
+import playwaze_rowing_reports.views as views
 
 import importlib
 
@@ -96,8 +96,8 @@ class App:
 
         if self.view == views.ROWERS_VIEW:
             st.warning(
-                "Rowers who are entered into composites may be associated with  \
-                the wrong club."
+                "Rowers who are entered into composites may be associated "
+                "with the wrong club."
             )
             df_rowers = pw.get_rowers_report(self.df_team_members)
             views.View(self.view, df_rowers)
