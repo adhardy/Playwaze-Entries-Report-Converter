@@ -161,7 +161,7 @@ def get_coxes(
 
     # extract all coxes from the teams report
     df_coxes = df_teams.loc[
-        df_teams[COL_COX] is True,
+        df_teams[COL_COX] == True,  # noqa E712
         [
             COL_COX_NAME,
             COL_CREW_ID,
@@ -231,7 +231,7 @@ def get_unique_rowers(df_team_members: pd.DataFrame):
     """Get a unique list of rowers from a Playwaze team members report"""
 
     df_unique_members = df_team_members[
-        df_team_members.duplicated(subset=[COL_NAME, COL_SR_NUMBER]) is False
+        df_team_members.duplicated(subset=[COL_NAME, COL_SR_NUMBER]) == False  # noqa E712
     ]
     return df_unique_members
 
@@ -258,7 +258,7 @@ def count_unique_rowers(df_team_members: pd.DataFrame) -> int:
     """Count the number of unique rowers and coxes in the event."""
 
     return df_team_members.loc[
-        df_team_members.duplicated(subset=COL_MEMBER_ID) is False,
+        df_team_members.duplicated(subset=COL_MEMBER_ID) == False,  # noqa E712
         COL_MEMBER_ID,
     ].count()
 
@@ -307,7 +307,7 @@ def get_clubs_report(
     df_rowers_by_club_count = (
         (
             df_team_members[
-                df_team_members.duplicated(subset=COL_SR_NUMBER) is False
+                df_team_members.duplicated(subset=COL_SR_NUMBER) == False  # noqa E712
             ].sort_values(by=COL_CLUB)
         )[[COL_CLUB, COL_SR_NUMBER]]
         .groupby(COL_CLUB)
